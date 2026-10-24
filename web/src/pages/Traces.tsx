@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Download } from "lucide-react";
@@ -10,6 +11,7 @@ import { api } from "@/lib/api";
 import { useAsync } from "@/lib/utils";
 
 export default function Traces() {
+  const { t } = useI18n();
   const { traceId } = useParams();
   const nav = useNavigate();
   const runs = useAsync(() => api.runs());
@@ -45,12 +47,13 @@ export default function Traces() {
   return (
     <div>
       <PageHeader
-        title="Trace Explorer"
-        subtitle="The full agent timeline: messages, retrievals, model decisions, tool calls and policy decisions. Compatible with OpenTelemetry GenAI semantic conventions."
+        title={t("Trace Explorer")}
+        badge={t("OTel GenAI")}
+        subtitle={t("The full agent timeline: messages, retrievals, model decisions, tool calls and policy decisions. Compatible with OpenTelemetry GenAI semantic conventions.")}
         actions={
           traceId && (
             <Button size="sm" variant="secondary" onClick={exportOtel}>
-              <Download className="h-3.5 w-3.5" /> OTel JSON
+              <Download className="h-3.5 w-3.5" /> {t("OTel JSON")}
             </Button>
           )
         }
@@ -58,11 +61,11 @@ export default function Traces() {
       <div className="grid gap-4 lg:grid-cols-[340px_1fr]">
         <Card className="h-fit">
           <CardHeader>
-            <CardTitle>Cases</CardTitle>
+            <CardTitle>{t("Cases")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <Label htmlFor="tr-run">Run</Label>
+              <Label htmlFor="tr-run">{t("Run")}</Label>
               <Select id="tr-run" value={runId} onChange={(e) => setRunId(e.target.value)}>
                 {done.map((r) => (
                   <option key={r.id} value={r.id}>
@@ -71,11 +74,11 @@ export default function Traces() {
                 ))}
               </Select>
             </div>
-            <Input placeholder="Filter cases" aria-label="Filter cases" value={q} onChange={(e) => setQ(e.target.value)} />
+            <Input placeholder={t("Filter cases")} aria-label={t("Filter cases")} value={q} onChange={(e) => setQ(e.target.value)} />
             {run.loading ? (
               <Loading />
             ) : cases.length === 0 ? (
-              <Empty>No traces yet.</Empty>
+              <Empty>{t("No traces yet.")}</Empty>
             ) : (
               <ul className="max-h-[560px] space-y-1 overflow-auto" data-testid="trace-cases">
                 {cases.map((c) => {
@@ -86,7 +89,7 @@ export default function Traces() {
                         onClick={() => nav(`/traces/${tid}`)}
                         className={
                           "flex w-full cursor-pointer items-start gap-2 rounded-lg border px-2.5 py-2 text-left text-[13px] " +
-                          (tid === traceId ? "border-sky bg-[#0e2230]" : "border-transparent hover:bg-panel-2")
+                          (tid === traceId ? "border-primary bg-surface" : "border-transparent hover:bg-surface-low")
                         }
                       >
                         <StatusBadge status={c.status} />
@@ -102,13 +105,13 @@ export default function Traces() {
         <Card className="min-w-0">
           <CardHeader>
             <div>
-              <CardTitle>Agent execution timeline</CardTitle>
-              <CardDescription>{traceId ? "Secrets are redacted before storage. Canary tokens are synthetic." : "Select a case to open its trace."}</CardDescription>
+              <CardTitle>{t("Agent execution timeline")}</CardTitle>
+              <CardDescription>{traceId ? t("Secrets are redacted before storage. Canary tokens are synthetic.") : t("Select a case to open its trace.")}</CardDescription>
             </div>
           </CardHeader>
           <CardContent>
             {!traceId ? (
-              <Empty>Pick a case on the left.</Empty>
+              <Empty>{t("Pick a case on the left.")}</Empty>
             ) : trace.loading ? (
               <Loading />
             ) : trace.error ? (

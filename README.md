@@ -42,6 +42,12 @@ before/after comparison.*
 |---|---|
 | ![Trace Explorer](docs/screenshots/trace.png) | ![Compare](docs/screenshots/compare.png) |
 
+The interface ships a **dark theme (default) and a light theme** and an **English / Russian** UI; both switch in the sidebar and are remembered. Report and scenario text stays in English.
+
+| Light theme | Russian interface |
+|---|---|
+| ![Dashboard, light theme](docs/screenshots/dashboard-light.png) | ![Dashboard, Russian](docs/screenshots/dashboard-ru.png) |
+
 ## Modules
 
 Twelve modules, one system: not a pile of prompts.
@@ -209,7 +215,7 @@ baseline must catch the regression.
 ```bash
 ruff check src tests && pytest                         # 83 tests: policy, runtime, evaluation semantics, gateway, reports, API, CLI, SDK
 npm --prefix web run typecheck
-npm --prefix web run test:e2e                          # 12 Playwright tests; PW_CHANNEL=chrome reuses an installed Chrome
+npm --prefix web run test:e2e                          # 14 Playwright tests; PW_CHANNEL=chrome reuses an installed Chrome
 ```
 
 The security regression suite asserts that every attack scenario fails on the unsafe agent, every scenario passes on

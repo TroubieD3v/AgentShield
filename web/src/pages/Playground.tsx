@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Play, FlaskConical, Mail, FileX2, BrainCircuit } from "lucide-react";
@@ -30,6 +31,7 @@ const PRESETS: Preset[] = [
 ];
 
 export default function Playground() {
+  const { t } = useI18n();
   const meta = useAsync(() => api.meta());
   const fixtures = useAsync(() => api.fixtures());
   const [preset, setPreset] = useState(PRESETS[0].id);
@@ -85,33 +87,34 @@ export default function Playground() {
   return (
     <div>
       <PageHeader
-        title="Attack Playground"
-        subtitle="Replay one attack against a sandbox agent and watch what it actually does. Flip Monitor / Enforce to see the same attack recorded, then blocked."
+        title={t("Attack Playground")}
+        badge={t("Mock tools only")}
+        subtitle={t("Replay one attack against a sandbox agent and watch what it actually does. Flip Monitor / Enforce to see the same attack recorded, then blocked.")}
       />
       <div className="grid gap-4 lg:grid-cols-[420px_1fr]">
         <Card>
           <CardHeader>
             <div>
               <CardTitle className="flex items-center gap-2">
-                <FlaskConical className="h-4 w-4 text-amber" /> Attack setup
+                <FlaskConical className="h-4 w-4 text-tertiary" /> {t("Attack setup")}
               </CardTitle>
-              <CardDescription>Mock tools only. Nothing is sent anywhere.</CardDescription>
+              <CardDescription>{t("Mock tools only. Nothing is sent anywhere.")}</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="pg-preset">Scenario preset</Label>
+              <Label htmlFor="pg-preset">{t("Scenario preset")}</Label>
               <Select id="pg-preset" value={preset} onChange={(e) => setPreset(e.target.value)}>
                 {PRESETS.map((x) => (
                   <option key={x.id} value={x.id}>
-                    {x.label}
+                    {t(x.label)}
                   </option>
                 ))}
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="pg-agent">Agent</Label>
+                <Label htmlFor="pg-agent">{t("Agent")}</Label>
                 <Select id="pg-agent" value={agent} onChange={(e) => setAgent(e.target.value)}>
                   {(meta.data?.agents ?? []).map((a) => (
                     <option key={a.name} value={a.name}>
@@ -121,7 +124,7 @@ export default function Playground() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="pg-policy">Policy</Label>
+                <Label htmlFor="pg-policy">{t("Policy")}</Label>
                 <Select id="pg-policy" value={policy} onChange={(e) => setPolicy(e.target.value)}>
                   {(meta.data?.policies ?? []).map((x) => (
                     <option key={x.id} value={x.id}>
@@ -132,9 +135,9 @@ export default function Playground() {
               </div>
             </div>
             <div>
-              <Label>Agent configuration</Label>
+              <Label>{t("Agent configuration")}</Label>
               <Segmented
-                ariaLabel="Agent variant"
+                ariaLabel={t("Agent variant")}
                 value={variant}
                 onChange={setVariant}
                 options={[
@@ -145,21 +148,21 @@ export default function Playground() {
               />
             </div>
             <div>
-              <Label htmlFor="pg-msg">User request</Label>
+              <Label htmlFor="pg-msg">{t("User request")}</Label>
               <Textarea id="pg-msg" rows={2} value={message} onChange={(e) => setMessage(e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="pg-kind">Untrusted content</Label>
+                <Label htmlFor="pg-kind">{t("Untrusted content")}</Label>
                 <Select id="pg-kind" value={kind} onChange={(e) => setKind(e.target.value as Preset["kind"])}>
-                  <option value="none">none</option>
-                  <option value="document">document</option>
-                  <option value="email">inbound email</option>
-                  <option value="web">web page</option>
+                  <option value="none">{t("none")}</option>
+                  <option value="document">{t("document")}</option>
+                  <option value="email">{t("inbound email")}</option>
+                  <option value="web">{t("web page")}</option>
                 </Select>
               </div>
               <div>
-                <Label htmlFor="pg-fixture">Fixture</Label>
+                <Label htmlFor="pg-fixture">{t("Fixture")}</Label>
                 <Select id="pg-fixture" value={fixture} onChange={(e) => setFixture(e.target.value)} disabled={kind === "none"}>
                   {(fixtures.data ?? []).map((f) => (
                     <option key={f.name} value={f.name}>
@@ -172,7 +175,7 @@ export default function Playground() {
             {kind !== "none" && fixtureText && <Json value={fixtureText} className="max-h-36" />}
             <div className="flex items-center justify-between gap-3 pt-1">
               <Segmented
-                ariaLabel="Policy mode"
+                ariaLabel={t("Policy mode")}
                 value={mode}
                 onChange={changeMode}
                 options={[
@@ -181,7 +184,7 @@ export default function Playground() {
                 ]}
               />
               <Button onClick={() => run()} disabled={busy} data-testid="run-attack">
-                <Play className="h-4 w-4" /> {busy ? "Running…" : "Run attack"}
+                <Play className="h-4 w-4" /> {busy ? t("Running…") : t("Run attack")}
               </Button>
             </div>
           </CardContent>
@@ -191,24 +194,24 @@ export default function Playground() {
           {error && <ErrorNote message={error} />}
           {!result && !busy && (
             <Card>
-              <CardContent className="py-12 text-center text-muted">Pick a preset and press “Run attack”.</CardContent>
+              <CardContent className="py-12 text-center text-muted">{t("Pick a preset and press “Run attack”.")}</CardContent>
             </Card>
           )}
-          {busy && !result && <Loading label="Running the sandbox agent" />}
+          {busy && !result && <Loading label={t("Running the sandbox agent")} />}
           {result && (
             <>
               <div className="grid gap-4 md:grid-cols-2">
                 <PolicyDecisionCard result={result} />
                 <Card>
                   <CardHeader>
-                    <CardTitle>What actually happened</CardTitle>
+                    <CardTitle>{t("What actually happened")}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3 text-[13px]">
-                    <Effect icon={<Mail className="h-4 w-4" />} label="Mock emails sent" value={w!.outbox.length} detail={w!.outbox.map((m) => m.recipient).join(", ")} />
-                    <Effect icon={<FileX2 className="h-4 w-4" />} label="Files deleted" value={w!.deleted_files.length} detail={w!.deleted_files.join(", ")} />
-                    <Effect icon={<BrainCircuit className="h-4 w-4" />} label="Memory entries from untrusted content" value={w!.memory.filter((m) => m.tainted).length} detail={w!.memory.filter((m) => m.tainted).map((m) => m.value.slice(0, 70)).join(" | ")} />
+                    <Effect icon={<Mail className="h-4 w-4" />} label={t("Mock emails sent")} value={w!.outbox.length} detail={w!.outbox.map((m) => m.recipient).join(", ")} />
+                    <Effect icon={<FileX2 className="h-4 w-4" />} label={t("Files deleted")} value={w!.deleted_files.length} detail={w!.deleted_files.join(", ")} />
+                    <Effect icon={<BrainCircuit className="h-4 w-4" />} label={t("Memory entries from untrusted content")} value={w!.memory.filter((m) => m.tainted).length} detail={w!.memory.filter((m) => m.tainted).map((m) => m.value.slice(0, 70)).join(" | ")} />
                     <div className="border-t border-line pt-3">
-                      <div className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted">Independent checks</div>
+                      <div className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted">{t("Independent checks")}</div>
                       <ul className="space-y-1.5">
                         {result.assertions.map((a) => (
                           <li key={a.type} className="flex items-start gap-2">
@@ -223,19 +226,19 @@ export default function Playground() {
               </div>
               <Card>
                 <CardHeader>
-                  <CardTitle>Agent response</CardTitle>
-                  <Badge tone="neutral">{result.stats.tool_calls ?? 0} tool calls</Badge>
+                  <CardTitle>{t("Agent response")}</CardTitle>
+                  <Badge tone="neutral">{result.stats.tool_calls ?? 0} {t("tool calls")}</Badge>
                 </CardHeader>
                 <CardContent>
-                  <p className="whitespace-pre-wrap text-[13.5px] text-[#c9ced6]">{result.response}</p>
+                  <p className="whitespace-pre-wrap text-[13.5px] text-ink/80">{result.response}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
                   <div>
-                    <CardTitle>Agent execution trace</CardTitle>
+                    <CardTitle>{t("Agent execution trace")}</CardTitle>
                     <CardDescription>
-                      Same view as in <Link className="text-sky hover:underline" to="/traces">Trace Explorer</Link>.
+                      {t("Same view as in")} <Link className="font-semibold text-secondary hover:underline" to="/traces">{t("Trace Explorer")}</Link>.
                     </CardDescription>
                   </div>
                 </CardHeader>
@@ -252,12 +255,13 @@ export default function Playground() {
 }
 
 function Effect({ icon, label, value, detail }: { icon: React.ReactNode; label: string; value: number; detail?: string }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-start gap-3">
       <span className={value > 0 ? "mt-0.5 text-bad" : "mt-0.5 text-ok"}>{icon}</span>
       <div className="min-w-0">
         <div>
-          <span className="font-semibold tabular-nums">{value}</span> <span className="text-muted">{label}</span>
+          <span className="font-semibold tabular-nums">{value}</span> <span className="text-muted">{t(label)}</span>
         </div>
         {value > 0 && detail && <div className="mono truncate text-[11.5px] text-bad">{detail}</div>}
       </div>

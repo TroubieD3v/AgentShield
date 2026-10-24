@@ -159,3 +159,35 @@ test("sidebar exposes all eight sections", async ({ page }) => {
     await expect(nav.getByRole("link", { name })).toBeVisible();
   }
 });
+
+test("theme: dark by default, light on request, choice survives a reload", async ({ page }) => {
+  await page.goto("/");
+  const html = page.locator("html");
+  await expect(html).toHaveClass(/dark/);
+  await page.locator("aside").getByTestId("theme-light").click();
+  await expect(html).not.toHaveClass(/dark/);
+  const bodyBg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  await expect.poll(bodyBg).toBe("rgb(248, 249, 255)");
+  await page.reload();
+  await expect(html).not.toHaveClass(/dark/);
+  await page.locator("aside").getByTestId("theme-dark").click();
+  await expect(html).toHaveClass(/dark/);
+  await expect.poll(bodyBg).toBe("rgb(9, 13, 19)");
+});
+
+test("language: English by default, Russian on request, persisted", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await page.locator("aside").getByTestId("lang-ru").click();
+  await expect(page.getByRole("heading", { name: "Дашборд" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Основное" }).getByRole("link", { name: "Песочница атак" })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "ru");
+  await page.goto("/playground");
+  await expect(page.getByRole("heading", { name: "Песочница атак" })).toBeVisible();
+  await page.getByTestId("run-attack").click();
+  await expect(page.getByTestId("policy-decision-badge")).toHaveText("Было бы заблокировано");
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Песочница атак" })).toBeVisible();
+  await page.locator("aside").getByTestId("lang-en").click();
+  await expect(page.getByRole("heading", { name: "Attack Playground" })).toBeVisible();
+});

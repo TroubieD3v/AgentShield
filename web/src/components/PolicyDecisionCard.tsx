@@ -1,8 +1,10 @@
+import { useI18n } from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
 import type { PlaygroundResult } from "@/lib/types";
 
-/** The "Policy decision" panel from the concept: one simulated tool request and what the policy did to it. */
+/** The "Policy decision" panel: one simulated tool request and what the policy did to it. */
 export function PolicyDecisionCard({ result }: { result: PlaygroundResult | null }) {
+  const { t } = useI18n();
   const calls = result?.trace.events.filter((e) => e.type === "tool_call") ?? [];
   const hit = calls.find((e) => e.policy && e.policy.violations.length > 0) ?? null;
   const decision = hit?.policy ?? null;
@@ -27,30 +29,30 @@ export function PolicyDecisionCard({ result }: { result: PlaygroundResult | null
   }
   const args = (hit?.input ?? {}) as Record<string, unknown>;
   return (
-    <div className="rounded-2xl border border-line bg-bg p-5" data-testid="policy-decision-card">
-      <div className="text-xs text-muted">Simulated tool request</div>
-      <div className="mt-1 text-[15px] font-semibold">{hit ? `${hit.title}()` : "—"}</div>
+    <div className="rounded-2xl bg-surface-low p-6" data-testid="policy-decision-card">
+      <div className="text-[11px] font-bold uppercase tracking-widest text-neutral">{t("Simulated tool request")}</div>
+      <div className="mt-1 font-headline text-lg font-bold">{hit ? `${hit.title}()` : "—"}</div>
       {hit && (
-        <div className="mt-3 space-y-1 text-[13px] text-muted">
-          {"recipient" in args && <div>Recipient: {String(args.recipient)}</div>}
-          {"path" in args && <div>Path: {String(args.path)}</div>}
-          {"url" in args && <div>URL: {String(args.url)}</div>}
-          <div>User authorization: {decision?.violations.some((v) => v.reason.includes("not requested")) ? "absent" : "unknown"}</div>
+        <div className="mt-3 space-y-1 text-[13px] text-neutral">
+          {"recipient" in args && <div>{t("Recipient:")} <span className="font-medium text-ink">{String(args.recipient)}</span></div>}
+          {"path" in args && <div>{t("Path:")} <span className="font-medium text-ink">{String(args.path)}</span></div>}
+          {"url" in args && <div>{t("URL:")} <span className="font-medium text-ink">{String(args.url)}</span></div>}
+          <div>{t("User authorization:")} <span className="font-medium text-ink">{decision?.violations.some((v) => v.reason.includes("not requested")) ? t("absent") : t("unknown")}</span></div>
         </div>
       )}
-      <hr className="my-4 border-line" />
-      <div className="text-lg font-semibold">Policy decision</div>
-      <div className="mt-2" data-testid="policy-decision-badge">
-        <Badge tone={tone} className="px-3 py-1 text-[13px]">
-          {label}
+      <hr className="my-5 border-line" />
+      <div className="font-headline text-xl font-bold">{t("Policy decision")}</div>
+      <div className="mt-3" data-testid="policy-decision-badge">
+        <Badge tone={tone} className="px-3.5 py-1 text-[13px]">
+          {t(label)}
         </Badge>
       </div>
-      <p className="mt-3 text-[13px] text-muted">{text}</p>
+      <p className="mt-3 text-[13px] leading-relaxed text-neutral">{t(text)}</p>
       {decision && (
-        <ul className="mt-3 space-y-1 text-[12px] text-muted">
+        <ul className="mt-3 space-y-1.5 text-[12px] text-neutral">
           {decision.violations.map((v) => (
             <li key={v.rule_id}>
-              <span className="mono text-sky">{v.rule_id}</span> — {v.reason}
+              <span className="mono font-semibold text-ink">{v.rule_id}</span> — {v.reason}
             </li>
           ))}
         </ul>

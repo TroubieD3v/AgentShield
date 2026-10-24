@@ -3,18 +3,20 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+/** Button set from the design board: Primary, Secondary, Inverted, Outlined (+ ghost, danger). */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-45 cursor-pointer active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "bg-amber text-black hover:bg-[#f2b455]",
-        secondary: "bg-panel-2 text-ink border border-line hover:border-[#363d48]",
-        ghost: "text-muted hover:text-ink hover:bg-panel-2",
-        outline: "border border-line text-ink hover:bg-panel-2",
-        danger: "bg-[#3a1717] text-bad border border-[#5c2626] hover:bg-[#4a1d1d]",
+        default: "bg-primary text-on-primary hover:bg-primary-hover hover:shadow-lift",
+        secondary: "bg-surface-high text-ink hover:bg-surface-highest",
+        inverted: "bg-inverse text-on-inverse hover:bg-inverse-hover",
+        outline: "border border-neutral/60 text-ink hover:bg-surface-low",
+        ghost: "text-neutral hover:text-ink hover:bg-surface",
+        danger: "bg-error text-on-error hover:opacity-90",
       },
-      size: { default: "h-9 px-4", sm: "h-8 px-3 text-[13px]", lg: "h-10 px-5", icon: "h-8 w-8" },
+      size: { default: "h-10 px-5", sm: "h-8 px-3.5 text-[13px]", lg: "h-11 px-6", icon: "h-8 w-8" },
     },
     defaultVariants: { variant: "default", size: "default" },
   },

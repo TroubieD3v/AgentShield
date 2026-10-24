@@ -42,6 +42,12 @@ AgentShield: открытый инструмент для проверки бе�
 |---|---|
 | ![Trace Explorer](docs/screenshots/trace.png) | ![Сравнение](docs/screenshots/compare.png) |
 
+В интерфейсе есть **тёмная (по умолчанию) и светлая темы** и **русский / английский** язык; оба переключаются в боковой панели и запоминаются. Тексты отчётов и сценариев остаются на английском.
+
+| Светлая тема | Русский интерфейс |
+|---|---|
+| ![Дашборд, светлая тема](docs/screenshots/dashboard-light.png) | ![Дашборд на русском](docs/screenshots/dashboard-ru.png) |
+
 ## Модули
 
 Двенадцать модулей, одна система, а не набор промптов.
@@ -209,7 +215,7 @@ agentshield pytest-gen -o test_agent_security.py                  # по pytest-
 ```bash
 ruff check src tests && pytest                         # 83 теста: политики, runtime, семантика оценки, шлюз, отчёты, API, CLI, SDK
 npm --prefix web run typecheck
-npm --prefix web run test:e2e                          # 12 тестов Playwright; PW_CHANNEL=chrome использует установленный Chrome
+npm --prefix web run test:e2e                          # 14 тестов Playwright; PW_CHANNEL=chrome использует установленный Chrome
 ```
 
 Регрессионный набор проверяет: каждый сценарий-атака проваливается на unsafe-агенте, каждый сценарий проходит на

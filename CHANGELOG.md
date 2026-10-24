@@ -15,5 +15,5 @@ First release.
 - Model Gateway (OpenAI-compatible, Ollama), black-box HTTP connector, host allowlist, request budget.
 - SDK and guard proxy for real Enforce in your own runtime.
 - Reports: HTML, JSON, SARIF 2.1.0 (with code flows), Markdown; generated pytest suites.
-- CLI, FastAPI backend (SQLite or PostgreSQL, in-process or Redis queue), React web UI with eight screens.
+- CLI, FastAPI backend (SQLite or PostgreSQL, in-process or Redis queue), React web UI with eight screens, dark (default) and light themes and an English and Russian interface.
 - Docker Compose, GitHub Actions (tests, e2e, self-gate with SARIF validation, Docker smoke test, release).

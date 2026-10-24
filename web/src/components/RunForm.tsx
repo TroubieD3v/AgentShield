@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ export function RunForm({
   onStarted: (id: string) => void;
   compact?: boolean;
 }) {
+  const { t } = useI18n();
   const [cfg, setCfg] = useState<Partial<RunConfig>>({
     target: "builtin",
     variant: "unsafe",
@@ -61,21 +63,21 @@ export function RunForm({
     <div className="space-y-4" data-testid="run-form">
       <div className={cn("grid gap-4", compact ? "grid-cols-1" : "md:grid-cols-2")}>
         <div>
-          <Label htmlFor="rf-target">Target</Label>
+          <Label htmlFor="rf-target">{t("Target")}</Label>
           <Select id="rf-target" value={cfg.target} onChange={(e) => set({ target: e.target.value })}>
-            <option value="builtin">Built-in demo agents (sandbox)</option>
-            {targets.map((t) => (
-              <option key={t.name} value={t.name}>
-                HTTP · {t.name}
+            <option value="builtin">{t("Built-in demo agents (sandbox)")}</option>
+            {targets.map((tg) => (
+              <option key={tg.name} value={tg.name}>
+                {t("HTTP ·")} {tg.name}
               </option>
             ))}
           </Select>
         </div>
         {builtin && (
           <div>
-            <Label>Agent configuration</Label>
+            <Label>{t("Agent configuration")}</Label>
             <Segmented
-              ariaLabel="Agent variant"
+              ariaLabel={t("Agent variant")}
               value={(cfg.variant ?? "unsafe") as "unsafe" | "partial" | "hardened"}
               onChange={(v) => set({ variant: v })}
               options={[
@@ -87,9 +89,9 @@ export function RunForm({
           </div>
         )}
         <div>
-          <Label>Policy mode</Label>
+          <Label>{t("Policy mode")}</Label>
           <Segmented
-            ariaLabel="Policy mode"
+            ariaLabel={t("Policy mode")}
             value={(cfg.mode ?? "monitor") as "monitor" | "enforce"}
             onChange={(v) => set({ mode: v })}
             options={[
@@ -97,32 +99,32 @@ export function RunForm({
               { value: "enforce", label: "Enforce" },
             ]}
           />
-          {!builtin && <p className="mt-1.5 text-xs text-muted">HTTP targets run in Monitor: Enforce needs the SDK or guard proxy inside their runtime.</p>}
+          {!builtin && <p className="mt-1.5 text-xs text-muted">{t("HTTP targets run in Monitor: Enforce needs the SDK or guard proxy inside their runtime.")}</p>}
         </div>
         <div>
-          <Label htmlFor="rf-policy">Policy set</Label>
+          <Label htmlFor="rf-policy">{t("Policy set")}</Label>
           <Select id="rf-policy" value={cfg.policy} onChange={(e) => set({ policy: e.target.value })}>
             {meta.policies.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.id} ({p.rules} rules)
+                {p.id} ({p.rules} {t("rules)")}
               </option>
             ))}
           </Select>
         </div>
         {builtin && (
           <div>
-            <Label htmlFor="rf-brain">Decision engine</Label>
+            <Label htmlFor="rf-brain">{t("Decision engine")}</Label>
             <Select id="rf-brain" value={cfg.brain} onChange={(e) => set({ brain: e.target.value, model: e.target.value === "llm" ? models[0]?.name : undefined })}>
-              <option value="simulated">Simulated (offline, deterministic)</option>
+              <option value="simulated">{t("Simulated (offline, deterministic)")}</option>
               <option value="llm" disabled={models.length === 0}>
-                Live model {models.length === 0 ? "(register a model first)" : ""}
+                {t("Live model")} {models.length === 0 ? t("(register a model first)") : ""}
               </option>
             </Select>
           </div>
         )}
         {builtin && cfg.brain === "llm" && (
           <div>
-            <Label htmlFor="rf-model">Model</Label>
+            <Label htmlFor="rf-model">{t("Model")}</Label>
             <Select id="rf-model" value={cfg.model ?? ""} onChange={(e) => set({ model: e.target.value })}>
               {models.map((m) => (
                 <option key={m.name} value={m.name}>
@@ -133,7 +135,7 @@ export function RunForm({
           </div>
         )}
         <div>
-          <Label htmlFor="rf-repeat">Repeats per case</Label>
+          <Label htmlFor="rf-repeat">{t("Repeats per case")}</Label>
           <Input
             id="rf-repeat"
             type="number"
@@ -145,12 +147,12 @@ export function RunForm({
           />
         </div>
         <div>
-          <Label htmlFor="rf-label">Label</Label>
-          <Input id="rf-label" value={cfg.label ?? ""} onChange={(e) => set({ label: e.target.value })} placeholder="e.g. before fixes" />
+          <Label htmlFor="rf-label">{t("Label")}</Label>
+          <Input id="rf-label" value={cfg.label ?? ""} onChange={(e) => set({ label: e.target.value })} placeholder={t("e.g. before fixes")} />
         </div>
       </div>
       <div>
-        <Label>Categories {selected.length === 0 && <span className="normal-case text-muted">(all)</span>}</Label>
+        <Label>{t("Categories")} {selected.length === 0 && <span className="normal-case text-muted">{t("(all)")}</span>}</Label>
         <div className="flex flex-wrap gap-1.5">
           {cats.map((c) => {
             const on = selected.includes(c);
@@ -162,7 +164,7 @@ export function RunForm({
                 onClick={() => set({ categories: on ? selected.filter((x) => x !== c) : [...selected, c] })}
                 className={cn(
                   "cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                  on ? "border-amber bg-[#2b1e0a] text-amber" : "border-line text-muted hover:text-ink",
+                  on ? "border-primary bg-primary text-on-primary" : "border-line text-neutral hover:text-ink",
                 )}
               >
                 <CategoryName id={c} />
@@ -178,7 +180,7 @@ export function RunForm({
         </p>
       ))}
       <Button onClick={start} disabled={busy} data-testid="start-run">
-        <Play className="h-4 w-4" /> {busy ? "Starting…" : "Start run"}
+        <Play className="h-4 w-4" /> {busy ? t("Starting…") : t("Start run")}
       </Button>
     </div>
   );

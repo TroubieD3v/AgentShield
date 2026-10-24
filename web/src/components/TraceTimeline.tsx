@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
 import {
   Bot,
@@ -35,72 +36,73 @@ const META: Record<string, { label: string; icon: typeof Bot }> = {
   error: { label: "Error", icon: OctagonAlert },
 };
 
-function describe(e: TraceEvent): { title: string; tone: "bad" | "ok" | "warn" | null; badge?: string } {
+function describe(e: TraceEvent, t: (s: string) => string): { title: string; tone: "bad" | "ok" | "warn" | null; badge?: string } {
   if (e.type === "tool_call") {
-    if (e.executed === false) return { title: `Unexpected tool call: ${e.title}`, tone: "bad", badge: "Blocked before execution" };
-    if (e.policy && e.policy.violations.length) return { title: `Unexpected tool call: ${e.title}`, tone: "bad", badge: "Violation detected" };
+    if (e.executed === false) return { title: `${t("Unexpected tool call")}: ${e.title}`, tone: "bad", badge: t("Blocked before execution") };
+    if (e.policy && e.policy.violations.length) return { title: `${t("Unexpected tool call")}: ${e.title}`, tone: "bad", badge: t("Violation detected") };
     return { title: e.title, tone: null };
   }
   if (e.type === "policy_decision") {
     return e.status === "blocked"
-      ? { title: "Policy enforcement", tone: "ok", badge: "Blocked" }
-      : { title: "Policy violation", tone: "bad", badge: e.policy?.decision === "audit" ? "Audited" : "Would block" };
+      ? { title: t("Policy enforcement"), tone: "ok", badge: t("Blocked") }
+      : { title: t("Policy violation"), tone: "bad", badge: e.policy?.decision === "audit" ? t("Audited") : t("Would block") };
   }
   if (e.type === "document_retrieval" && e.attributes["agentshield.injection_suspected"]) {
-    return { title: `${e.title}: untrusted instruction detected`, tone: "warn", badge: "Injection suspected" };
+    return { title: `${e.title}: ${t("untrusted instruction detected")}`, tone: "warn", badge: t("Injection suspected") };
   }
   return { title: e.title, tone: null };
 }
 
 export function TraceTimeline({ trace, highlight }: { trace: Trace; highlight?: number | null }) {
+  const { t } = useI18n();
   const [showModel, setShowModel] = useState(false);
   const events = trace.events.filter((e) => showModel || e.type !== "model_generation");
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div className="text-xs text-muted">
-          <span className="mono">{trace.trace_id}</span> · {trace.events.length} events
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="text-xs text-neutral">
+          <span className="mono">{trace.trace_id}</span> · {trace.events.length} {t("events")}
         </div>
-        <label className="flex items-center gap-2 text-xs text-muted">
-          <Switch checked={showModel} onCheckedChange={setShowModel} aria-label="Show model decisions" />
-          model decisions
+        <label className="flex items-center gap-2 text-xs font-medium text-neutral">
+          <Switch checked={showModel} onCheckedChange={setShowModel} aria-label={t("Show model decisions")} />
+          {t("model decisions")}
         </label>
       </div>
-      <ol className="relative space-y-2" aria-label="Agent execution timeline">
+      <ol className="relative space-y-2" aria-label={t("Agent execution timeline")}>
         {events.map((e) => {
           const m = META[e.type] ?? { label: e.type, icon: Bot };
           const Icon = m.icon;
-          const d = describe(e);
+          const d = describe(e, t);
           const hasBody = e.input != null || e.output != null || (e.policy && e.policy.violations.length > 0);
           return (
             <li
               key={e.id}
               data-testid={`trace-event-${e.type}`}
               className={cn(
-                "grid grid-cols-[34px_1fr] gap-3 rounded-xl border bg-panel px-3 py-2.5",
-                d.tone === "bad" ? "border-[#5a2626]" : d.tone === "ok" ? "border-[#1f4a37]" : d.tone === "warn" ? "border-[#5e4417]" : "border-line",
-                highlight === e.seq && "ring-2 ring-sky",
+                "grid grid-cols-[34px_1fr] gap-3 rounded-xl px-3.5 py-3",
+                d.tone === "bad" ? "bg-error/[0.06]" : d.tone === "ok" ? "bg-secondary/[0.07]" : d.tone === "warn" ? "bg-tertiary/[0.08]" : "bg-surface-low",
+                highlight === e.seq && "ring-2 ring-primary",
               )}
             >
               <div
                 className={cn(
-                  "mt-0.5 flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold",
-                  d.tone === "bad" ? "bg-[#3a1717] text-bad" : d.tone === "ok" ? "bg-[#0f2a1f] text-ok" : d.tone === "warn" ? "bg-[#2a2010] text-warn" : "bg-panel-2 text-muted",
+                  "mt-0.5 flex h-8 w-8 items-center justify-center rounded-full font-headline text-xs font-bold",
+                  d.tone === "bad" ? "bg-error text-on-error" : d.tone === "ok" ? "bg-secondary text-on-secondary" : d.tone === "warn" ? "bg-tertiary text-on-tertiary" : "bg-white text-neutral",
                 )}
               >
                 {e.seq}
               </div>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <Icon className="h-3.5 w-3.5 text-muted" aria-hidden />
-                  <span className="font-medium">{d.title}</span>
-                  <span className="text-xs text-muted">{m.label}</span>
+                  <Icon className="h-3.5 w-3.5 text-neutral" aria-hidden />
+                  <span className="font-semibold">{d.title}</span>
+                  <span className="text-xs text-neutral">{t(m.label)}</span>
                   {e.type === "tool_call" && (
-                    <Badge tone={e.executed ? "neutral" : "ok"}>{e.executed ? "executed" : "not executed"}</Badge>
+                    <Badge tone={e.executed ? "neutral" : "ok"}>{e.executed ? t("executed") : t("not executed")}</Badge>
                   )}
                   {d.badge && <Badge tone={d.tone === "ok" ? "ok" : d.tone === "warn" ? "warn" : "bad"}>{d.badge}</Badge>}
-                  {e.untrusted && <Badge tone="amber">untrusted content</Badge>}
-                  <span className="ml-auto text-[11px] text-muted tabular-nums">
+                  {e.untrusted && <Badge tone="amber">{t("untrusted content")}</Badge>}
+                  <span className="ml-auto text-[11px] text-neutral tabular-nums">
                     {new Date(e.ts * 1000).toLocaleTimeString()} {e.duration_ms ? `· ${fmtMs(e.duration_ms)}` : ""}
                   </span>
                 </div>
@@ -108,9 +110,9 @@ export function TraceTimeline({ trace, highlight }: { trace: Trace; highlight?: 
                   <ul className="mt-2 space-y-1">
                     {e.policy.violations.map((v) => (
                       <li key={v.rule_id} className="flex items-start gap-2 text-[13px]">
-                        {e.policy!.blocked ? <ShieldCheck className="mt-0.5 h-3.5 w-3.5 text-ok" /> : <ShieldAlert className="mt-0.5 h-3.5 w-3.5 text-bad" />}
+                        {e.policy!.blocked ? <ShieldCheck className="mt-0.5 h-3.5 w-3.5 text-secondary" /> : <ShieldAlert className="mt-0.5 h-3.5 w-3.5 text-error" />}
                         <span>
-                          <span className="mono text-[12px] text-sky">{v.rule_id}</span> <span className="text-muted">{v.severity}</span>: {v.reason}
+                          <span className="mono text-[12px] font-semibold text-ink">{v.rule_id}</span> <span className="text-neutral">{v.severity}</span>: {v.reason}
                         </span>
                       </li>
                     ))}
@@ -118,7 +120,7 @@ export function TraceTimeline({ trace, highlight }: { trace: Trace; highlight?: 
                 )}
                 {hasBody && (
                   <details className="mt-2">
-                    <summary className="cursor-pointer text-xs text-muted hover:text-ink">input / output (secrets redacted)</summary>
+                    <summary className="cursor-pointer text-xs font-medium text-neutral hover:text-ink">{t("input / output (secrets redacted)")}</summary>
                     <div className="mt-2 grid gap-2 md:grid-cols-2">
                       {e.input != null && <Json value={e.input} />}
                       {e.output != null && <Json value={e.output} />}

@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { Download, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ except PolicyBlocked as e:
     print(e)                            # denied before execution`;
 
 export default function Policies() {
+  const { t } = useI18n();
   const policies = useAsync(() => api.policies());
   const runs = useAsync(() => api.runs());
   const [sel, setSel] = useState("default");
@@ -62,10 +64,10 @@ export default function Policies() {
   async function validate(save: boolean) {
     const v = await api.validatePolicy(yaml);
     if (!v.valid) return setMsg({ ok: false, text: v.error ?? "invalid" });
-    if (!save) return setMsg({ ok: true, text: `Valid: ${v.rules} rules.` });
+    if (!save) return setMsg({ ok: true, text: t("Valid: {n} rules.", { n: v.rules ?? 0 }) });
     try {
       const r = await api.savePolicy(yaml);
-      setMsg({ ok: true, text: `Saved as "${r.saved}".` });
+      setMsg({ ok: true, text: t("Saved as \"{name}\".", { name: r.saved }) });
       void policies.reload();
     } catch (e) {
       setMsg({ ok: false, text: e instanceof Error ? e.message : String(e) });
@@ -77,19 +79,20 @@ export default function Policies() {
   return (
     <div>
       <PageHeader
-        title="Policies & Reports"
-        subtitle="Deterministic rules plus JSON Schema decide whether a tool call may run. Monitor records violations; Enforce stops them before execution."
+        title={t("Policies & Reports")}
+        badge={t("Monitor / Enforce")}
+        subtitle={t("Deterministic rules plus JSON Schema decide whether a tool call may run. Monitor records violations; Enforce stops them before execution.")}
       />
       <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
         <Card>
           <CardHeader>
             <div>
               <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-ok" /> Policy sets
+                <ShieldCheck className="h-4 w-4 text-ok" /> {t("Policy sets")}
               </CardTitle>
               <CardDescription>{p?.description}</CardDescription>
             </div>
-            <Select aria-label="Policy" value={sel} onChange={(e) => setSel(e.target.value)} className="w-44">
+            <Select aria-label={t("Policy")} value={sel} onChange={(e) => setSel(e.target.value)} className="w-44">
               {policies.data!.map((x) => (
                 <option key={x.id} value={x.id}>
                   {x.id}
@@ -99,23 +102,23 @@ export default function Policies() {
           </CardHeader>
           <CardContent>
             <div className="mb-3 flex flex-wrap gap-1.5 text-xs">
-              <Chip>trusted domains: {p?.trusted_domains.join(", ")}</Chip>
-              {p?.allowed_fetch_domains.length ? <Chip>fetch allowlist: {p.allowed_fetch_domains.length}</Chip> : null}
+              <Chip>{t("trusted domains:")} {p?.trusted_domains.join(", ")}</Chip>
+              {p?.allowed_fetch_domains.length ? <Chip>{t("fetch allowlist:")} {p.allowed_fetch_domains.length}</Chip> : null}
             </div>
             <table className="w-full text-[12.5px]" data-testid="rules">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-wide text-muted">
-                  <th className="pb-2 font-medium">Rule</th>
-                  <th className="pb-2 font-medium">Tools</th>
-                  <th className="pb-2 font-medium">Severity</th>
-                  <th className="pb-2 font-medium">Effect</th>
+                  <th className="pb-2 font-medium">{t("Rule")}</th>
+                  <th className="pb-2 font-medium">{t("Tools")}</th>
+                  <th className="pb-2 font-medium">{t("Severity")}</th>
+                  <th className="pb-2 font-medium">{t("Effect")}</th>
                 </tr>
               </thead>
               <tbody>
                 {p?.rules.map((r) => (
                   <tr key={r.id} className="border-t border-line align-top">
                     <td className="py-2 pr-3">
-                      <div className="mono text-[12px] text-sky">{r.id}</div>
+                      <div className="mono text-[12px] font-semibold text-ink">{r.id}</div>
                       <div className="text-muted">{r.description}</div>
                       <div className="mt-1 flex flex-wrap gap-1">{r.owasp.map((o) => <Chip key={o}>{o}</Chip>)}</div>
                     </td>
@@ -131,10 +134,10 @@ export default function Policies() {
           </CardContent>
         </Card>
 
-        <div className="rounded-2xl border border-line bg-panel p-5" data-testid="policy-demo">
-          <h2 className="mb-4 text-[15px] font-semibold">Policy Engine demo</h2>
+        <div className="rounded-2xl bg-panel p-6 shadow-editorial" data-testid="policy-demo">
+          <h2 className="mb-4 text-[15px] font-semibold">{t("Policy Engine demo")}</h2>
           <Segmented
-            ariaLabel="Policy mode"
+            ariaLabel={t("Policy mode")}
             value={mode}
             onChange={setMode}
             options={[
@@ -145,7 +148,7 @@ export default function Policies() {
           <div className="mt-4">
             {demoErr ? <ErrorNote message={demoErr} /> : <PolicyDecisionCard result={demo} />}
           </div>
-          <p className="mt-3 text-xs text-muted">Interactive illustration: both modes run the sandbox agent with mock tools. No emails are sent.</p>
+          <p className="mt-3 text-xs text-muted">{t("Interactive illustration: both modes run the sandbox agent with mock tools. No emails are sent.")}</p>
         </div>
       </div>
 
@@ -153,17 +156,17 @@ export default function Policies() {
         <Card>
           <CardHeader>
             <div>
-              <CardTitle>Policy editor</CardTitle>
-              <CardDescription>Edit a copy, validate against the JSON Schema, and save under a new id.</CardDescription>
+              <CardTitle>{t("Policy editor")}</CardTitle>
+              <CardDescription>{t("Edit a copy, validate against the JSON Schema, and save under a new id.")}</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Textarea aria-label="Policy YAML" rows={14} value={yaml} onChange={(e) => setYaml(e.target.value)} spellCheck={false} />
+            <Textarea aria-label={t("Policy YAML")} rows={14} value={yaml} onChange={(e) => setYaml(e.target.value)} spellCheck={false} />
             <div className="flex items-center gap-2">
               <Button variant="secondary" onClick={() => validate(false)}>
-                Validate
+                {t("Validate")}
               </Button>
-              <Button onClick={() => validate(true)}>Save as new policy</Button>
+              <Button onClick={() => validate(true)}>{t("Save as new policy")}</Button>
               {msg && <span className={msg.ok ? "text-sm text-ok" : "text-sm text-bad"}>{msg.text}</span>}
             </div>
           </CardContent>
@@ -172,13 +175,13 @@ export default function Policies() {
         <Card>
           <CardHeader>
             <div>
-              <CardTitle>Reports</CardTitle>
-              <CardDescription>HTML, JSON, SARIF and Markdown for any completed run.</CardDescription>
+              <CardTitle>{t("Reports")}</CardTitle>
+              <CardDescription>{t("HTML, JSON, SARIF and Markdown for any completed run.")}</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <Label htmlFor="rp-run">Run</Label>
+              <Label htmlFor="rp-run">{t("Run")}</Label>
               <Select id="rp-run" value={runId} onChange={(e) => setRunId(e.target.value)}>
                 {done.map((r) => (
                   <option key={r.id} value={r.id}>
@@ -195,7 +198,7 @@ export default function Policies() {
               ))}
             </div>
             <div>
-              <Label>GitHub Actions</Label>
+              <Label>{t("GitHub Actions")}</Label>
               <Json value={GH_ACTION} className="max-h-40" />
             </div>
           </CardContent>
@@ -205,9 +208,9 @@ export default function Policies() {
       <Card className="mt-4">
         <CardHeader>
           <div>
-            <CardTitle>Real Enforce for your own agent</CardTitle>
+            <CardTitle>{t("Real Enforce for your own agent")}</CardTitle>
             <CardDescription>
-              A target reachable only over HTTP cannot be blocked from outside: AgentShield never sees its real tool calls. To get true Enforce, route calls through the SDK (in-process) or the guard proxy (<span className="mono">POST /api/guard/&lt;id&gt;/evaluate</span>, any language).
+              {t("A target reachable only over HTTP cannot be blocked from outside: AgentShield never sees its real tool calls. To get true Enforce, route calls through the SDK (in-process) or the guard proxy (")}<span className="mono">POST /api/guard/&lt;id&gt;/evaluate</span>{t(", any language).")}
             </CardDescription>
           </div>
         </CardHeader>

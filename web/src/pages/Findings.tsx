@@ -1,3 +1,4 @@
+import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Network } from "lucide-react";
@@ -9,6 +10,7 @@ import { api } from "@/lib/api";
 import { useAsync } from "@/lib/utils";
 
 export default function Findings() {
+  const { t } = useI18n();
   const runs = useAsync(() => api.runs());
   const [runId, setRunId] = useState<string>("");
   const f = useAsync(() => api.findings(runId || undefined), [runId]);
@@ -19,14 +21,15 @@ export default function Findings() {
   return (
     <div>
       <PageHeader
-        title="Findings"
-        subtitle="FAIL means a confirmed violation backed by observed actions. SUSPICIOUS needs a human look. Judge-only signals never become FAIL on their own."
+        title={t("Findings")}
+        badge={t("Evidence-backed")}
+        subtitle={t("FAIL means a confirmed violation backed by observed actions. SUSPICIOUS needs a human look. Judge-only signals never become FAIL on their own.")}
       />
       <div className="mb-4 grid max-w-xl grid-cols-2 gap-3">
         <div>
-          <Label htmlFor="f-run">Run</Label>
+          <Label htmlFor="f-run">{t("Run")}</Label>
           <Select id="f-run" value={runId} onChange={(e) => setRunId(e.target.value)}>
-            <option value="">Latest completed</option>
+            <option value="">{t("Latest completed")}</option>
             {done.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.label || r.id}
@@ -35,9 +38,9 @@ export default function Findings() {
           </Select>
         </div>
         <div>
-          <Label htmlFor="f-sev">Severity</Label>
+          <Label htmlFor="f-sev">{t("Severity")}</Label>
           <Select id="f-sev" value={sev} onChange={(e) => setSev(e.target.value)}>
-            <option value="">All</option>
+            <option value="">{t("All")}</option>
             {["critical", "high", "medium", "low"].map((s) => (
               <option key={s}>{s}</option>
             ))}
@@ -49,7 +52,7 @@ export default function Findings() {
       ) : f.error ? (
         <ErrorNote message={f.error} />
       ) : rows.length === 0 ? (
-        <Empty>No findings. {f.data?.run_id ? "This run is clean at the selected severity." : "Run an assessment first."}</Empty>
+        <Empty>{t("No findings.")} {f.data?.run_id ? t("This run is clean at the selected severity.") : t("Run an assessment first.")}</Empty>
       ) : (
         <div className="space-y-3" data-testid="findings">
           {rows.map((x) => (
@@ -69,9 +72,9 @@ export default function Findings() {
                   {x.owasp.map((o) => (
                     <Chip key={o}>{o}</Chip>
                   ))}
-                  <Chip>{x.confidence === "confirmed" ? "confirmed by observed action" : "needs review"}</Chip>
+                  <Chip>{x.confidence === "confirmed" ? t("confirmed by observed action") : t("needs review")}</Chip>
                 </div>
-                <p className="text-[13.5px] text-[#c9ced6]">{x.description}</p>
+                <p className="text-[13.5px] text-ink/80">{x.description}</p>
                 {x.evidence.length > 0 && (
                   <ul className="space-y-1 text-[12.5px]">
                     {x.evidence.slice(0, 4).map((e, i) => (
@@ -83,13 +86,13 @@ export default function Findings() {
                 )}
                 {x.remediation && (
                   <p className="text-[13px]">
-                    <b className="text-amber">Remediation:</b> {x.remediation}
+                    <b className="text-tertiary-text">{t("Remediation:")}</b> {x.remediation}
                   </p>
                 )}
                 {x.trace_id && (
                   <Button asChild size="sm" variant="secondary">
                     <Link to={`/traces/${x.trace_id}`}>
-                      <Network className="h-3.5 w-3.5" /> Open trace
+                      <Network className="h-3.5 w-3.5" /> {t("Open trace")}
                     </Link>
                   </Button>
                 )}

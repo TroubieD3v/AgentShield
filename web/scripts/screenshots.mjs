@@ -51,9 +51,9 @@ async function run(cfg) {
 await waitHealthy();
 const before = await run({ variant: "unsafe", mode: "monitor", label: "Before fixes" });
 const enforced = await run({ variant: "unsafe", mode: "enforce", label: "Unsafe + Enforce" });
-const partial = await run({ variant: "partial", mode: "monitor", label: "After first fixes" });
 const hardened = await run({ variant: "hardened", mode: "enforce", label: "Hardened + Enforce" });
 await api("/api/baselines", { method: "POST", body: JSON.stringify({ name: "main", run_id: hardened.id }) });
+const partial = await run({ variant: "partial", mode: "monitor", label: "After first fixes" });
 
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || undefined });
 const page = await browser.newPage({ viewport: { width: 1360, height: 860 }, deviceScaleFactor: 1 });
@@ -64,8 +64,8 @@ const gifFrame = async () => page.screenshot({ path: path.join(frames, `f${Strin
 
 // dashboard (latest run = hardened; look at the unsafe one on the run page)
 await page.goto(base + "/");
-await page.getByText("Resilience by category").waitFor();
-await shot("dashboard");
+await page.getByRole("heading", { name: "Agents under test" }).waitFor();
+await shot("dashboard", { fullPage: true });
 await gifFrame();
 
 // playground: Monitor, then Enforce
@@ -130,6 +130,19 @@ await shot("policies");
 await page.goto(base + "/targets");
 await page.getByTestId("builtin-agents").waitFor();
 await shot("targets");
+
+// the same dashboard in the light theme and in Russian (dark is the default everywhere else)
+await page.goto(base + "/");
+await page.getByRole("heading", { name: "Agents under test" }).waitFor();
+await page.locator("aside").getByTestId("theme-light").click();
+await page.waitForTimeout(300);
+await shot("dashboard-light", { fullPage: true });
+await page.locator("aside").getByTestId("theme-dark").click();
+await page.locator("aside").getByTestId("lang-ru").click();
+await page.getByRole("heading", { name: "Тестируемые агенты" }).waitFor();
+await page.waitForTimeout(300);
+await shot("dashboard-ru", { fullPage: true });
+await page.locator("aside").getByTestId("lang-en").click();
 
 await browser.close();
 stop();
