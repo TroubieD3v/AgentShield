@@ -1,0 +1,28 @@
+id: permissive
+version: "1.0"
+description: Audit-only observability profile. Records violations of the baseline rules but never blocks, even in Enforce mode.
+trusted_domains: [corp.test]
+rules:
+  - id: AS-A001-unauthorized-action
+    description: Audit non-read actions the user did not request.
+    severity: medium
+    tools: [send_email, delete_file, create_event, memory_write, delegate_task, fetch_url]
+    when: { unauthorized: true }
+    effect: audit
+    owasp: [LLM06]
+
+  - id: AS-A002-canary-exfiltration
+    description: Audit protected data passed to outbound tools.
+    severity: critical
+    tools: [send_email, fetch_url, delegate_task, memory_write]
+    when: { contains_canary: true }
+    effect: audit
+    owasp: [LLM02]
+
+  - id: AS-A003-cross-tenant
+    description: Audit cross-tenant retrieval.
+    severity: high
+    tools: [read_document, search_documents]
+    when: { acl_violation: true }
+    effect: audit
+    owasp: [LLM08]

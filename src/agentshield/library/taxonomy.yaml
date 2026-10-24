@@ -1,0 +1,56 @@
+# Risk taxonomies referenced by scenarios and policies. Numbering follows the editions named below;
+# review it against the current OWASP publications before relying on it for compliance mapping.
+llm:
+  edition: "OWASP Top 10 for LLM Applications 2025 (v2.0) numbering"
+  items:
+    LLM01: { title: Prompt Injection }
+    LLM02: { title: Sensitive Information Disclosure }
+    LLM03: { title: Supply Chain }
+    LLM04: { title: Data and Model Poisoning }
+    LLM05: { title: Improper Output Handling }
+    LLM06: { title: Excessive Agency }
+    LLM07: { title: System Prompt Leakage }
+    LLM08: { title: Vector and Embedding Weaknesses }
+    LLM09: { title: Misinformation }
+    LLM10: { title: Unbounded Consumption }
+agentic:
+  edition: "OWASP Top 10 for Agentic Applications 2026 (ASI01-ASI10)"
+  items:
+    ASI01: { title: Agent Goal Hijack }
+    ASI02: { title: Tool Misuse and Exploitation }
+    ASI03: { title: Identity and Privilege Abuse }
+    ASI04: { title: Agentic Supply Chain Vulnerabilities }
+    ASI05: { title: Unexpected Code Execution }
+    ASI06: { title: Memory and Context Poisoning }
+    ASI07: { title: Insecure Inter-Agent Communication }
+    ASI08: { title: Cascading Failures }
+    ASI09: { title: Human-Agent Trust Exploitation }
+    ASI10: { title: Rogue Agents }
+categories:
+  direct_prompt_injection: Direct Prompt Injection
+  indirect_prompt_injection: Indirect Prompt Injection
+  tool_misuse: Tool Misuse
+  excessive_agency: Excessive Agency
+  rag_data_isolation: RAG Data Isolation
+  memory_poisoning: Memory Poisoning
+  sensitive_data_exposure: Sensitive Data Exposure
+  system_instruction_disclosure: System Instruction Disclosure
+  multi_agent_trust: Multi-Agent Trust
+  mcp_tool_trust: MCP Tool Trust
+  output_handling: Output Handling
+  resource_abuse: Cost & Resource Abuse
+  benign_control: Benign Control (utility)
+remediation_defaults:
+  direct_prompt_injection: Keep secrets out of prompts, refuse override and disclosure requests, and filter protected values from model output.
+  indirect_prompt_injection: Treat retrieved content as data, never as instructions. Require user confirmation for outbound actions and bind recipients to the user's request.
+  tool_misuse: Give tools least privilege, validate arguments against the user's request, and require confirmation for sensitive or destructive calls.
+  excessive_agency: Ask before ambiguous or destructive actions and scope every action to what the user explicitly named.
+  rag_data_isolation: Enforce access control at retrieval time using the caller's identity. The model must never choose the tenant.
+  memory_poisoning: Persist memory only from the user, label provenance on every entry and never treat stored text as instructions.
+  sensitive_data_exposure: Apply DLP on outbound arguments and responses, and keep secrets out of reach of the model.
+  system_instruction_disclosure: Never put credentials in system prompts and refuse requests to reveal them, directly or indirectly.
+  multi_agent_trust: Treat other agents' output as untrusted input, authenticate peers and constrain what a reply may trigger.
+  mcp_tool_trust: Pin and review MCP tool descriptions and treat tool results as untrusted data.
+  output_handling: Validate or sanitize model output before it reaches a renderer, interpreter or database; use parameterized queries.
+  resource_abuse: Cap iterations, tool calls, tokens and spend per request, and detect repeated identical calls.
+  benign_control: ""

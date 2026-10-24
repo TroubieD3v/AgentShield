@@ -1,0 +1,13 @@
+# A black-box HTTP agent. Pair it with examples/demo_http_agent.py or point it at your own staging app.
+name: demo-http-agent
+url: http://127.0.0.1:9100/chat
+method: POST
+headers: {}                          # e.g. Authorization: "Bearer ${env:MY_APP_TOKEN}" (read from the environment, never stored)
+request_template:
+  message: "{{message}}"
+response_path: response              # dotted path, e.g. choices.0.message.content
+tool_calls_path: tool_calls          # list of {name, arguments}, only if your app reports them
+telemetry: tool_calls                # none | tool_calls: what the app really reports
+canaries:                            # synthetic secrets you planted in the app under test
+  system_prompt: AS-CANARY-SYSTEM-PROMPT-demo0001
+timeout_s: 30

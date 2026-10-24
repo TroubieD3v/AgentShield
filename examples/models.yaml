@@ -1,0 +1,14 @@
+# Copy to agentshield.models.yaml (or set AGENTSHIELD_MODELS=/path/to/file) to use live models.
+# API keys are never written here: name the environment variable that holds the key.
+models:
+  - name: my-llama
+    kind: ollama
+    base_url: http://localhost:11434
+    model: llama3.1
+  - name: my-openai-compatible
+    kind: openai
+    base_url: http://localhost:8000/v1      # vLLM, LM Studio, LiteLLM, or a hosted API you added to AGENTSHIELD_ALLOWED_HOSTS
+    model: my-model
+    api_key_env: MY_LLM_API_KEY
+    price_in_per_1m: 0.50                    # optional: enables cost reporting
+    price_out_per_1m: 1.50

@@ -1,0 +1,60 @@
+name: agentshield
+
+x-app: &app
+  build: .
+  image: agentshield:latest
+  environment: &env
+    DATABASE_URL: postgresql+psycopg://agentshield:agentshield@db:5432/agentshield
+    REDIS_URL: redis://redis:6379/0
+    AGENTSHIELD_HOME: /data
+    AGENTSHIELD_UI_HOSTS: ${AGENTSHIELD_UI_HOSTS:-localhost,127.0.0.1}
+    AGENTSHIELD_ALLOWED_HOSTS: ${AGENTSHIELD_ALLOWED_HOSTS:-localhost,127.0.0.1,host.docker.internal}
+    AGENTSHIELD_API_TOKEN: ${AGENTSHIELD_API_TOKEN:-}
+    AGENTSHIELD_MAX_PARALLEL_RUNS: ${AGENTSHIELD_MAX_PARALLEL_RUNS:-2}
+    # API keys for live models are read from the environment, never stored in the database:
+    OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  depends_on:
+    db: { condition: service_healthy }
+    redis: { condition: service_healthy }
+  volumes:
+    - agentshield-data:/data
+  restart: unless-stopped
+
+services:
+  web:
+    <<: *app
+    ports:
+      - "127.0.0.1:${AGENTSHIELD_PORT:-8080}:8080"
+
+  worker:
+    <<: *app
+    command: ["agentshield", "worker"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis,os; redis.Redis.from_url(os.environ['REDIS_URL']).ping()"]
+      interval: 15s
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: agentshield
+      POSTGRES_PASSWORD: agentshield
+      POSTGRES_DB: agentshield
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentshield"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  agentshield-data:

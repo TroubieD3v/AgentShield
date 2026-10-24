@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AgentShield policy",
+  "type": "object",
+  "required": ["id", "rules"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_\\-]*$" },
+    "version": { "type": "string" },
+    "description": { "type": "string" },
+    "trusted_domains": { "type": "array", "items": { "type": "string" } },
+    "allowed_fetch_domains": { "type": "array", "items": { "type": "string" } },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
+          "tools": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "when": { "type": "object" },
+          "when_any": { "type": "object" },
+          "effect": { "enum": ["deny", "audit"] },
+          "owasp": { "type": "array", "items": { "type": "string" } },
+          "remediation": { "type": "string" }
+        }
+      }
+    }
+  }
+}

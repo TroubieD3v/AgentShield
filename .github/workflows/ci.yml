@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: pip install -e ".[dev,postgres]"
+      - run: ruff check src tests
+      - run: pytest --cov=agentshield --cov-report=term-missing:skip-covered
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm --prefix web ci
+      - run: npm --prefix web run typecheck
+      - run: npm --prefix web run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: web/dist
+
+  e2e:
+    needs: web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: pip install -e .
+      - run: npm --prefix web ci
+      - run: npm --prefix web run build
+      - run: npx --prefix web playwright install --with-deps chromium
+      - run: npm --prefix web run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/playwright-report
+
+  # AgentShield tested with AgentShield: the gate must pass on the hardened agent and fail on the unsafe one.
+  security-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e . jsonschema
+      - name: Hardened agent passes the gate in Enforce mode
+        run: agentshield run --variant hardened --mode enforce -q --fail-on high -f sarif -o hardened.sarif
+      - run: python scripts/check_sarif.py hardened.sarif --expect-none
+      - name: Unsafe agent fails the gate and produces findings
+        run: |
+          set +e
+          agentshield run --variant unsafe --mode monitor -q --fail-on high -f sarif -o unsafe.sarif
+          code=$?
+          test "$code" -eq 1
+      - run: python scripts/check_sarif.py unsafe.sarif --expect-findings 30
+      - name: Regression gate against a saved baseline
+        run: |
+          agentshield run --variant hardened -q -f json -o baseline.json --fail-on none
+          agentshield baseline save baseline.json --name ci
+          agentshield run --variant hardened --mode enforce -q -f json -o current.json --fail-on none
+          agentshield baseline check current.json --name ci
+          agentshield run --variant unsafe -q -f json -o worse.json --fail-on none
+          ! agentshield baseline check worse.json --name ci
+      - uses: github/codeql-action/upload-sarif@v4
+        if: always() && github.event_name == 'push'
+        with:
+          sarif_file: unsafe.sarif
+          category: agentshield-demo
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sarif
+          path: "*.sarif"
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t agentshield .
+      - name: Smoke test
+        run: |
+          docker run -d --name as -p 127.0.0.1:8080:8080 agentshield
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:8080/api/health && break; sleep 1; done
+          curl -fs http://127.0.0.1:8080/ | grep -q "<div id=\"root\">"
+          docker rm -f as
