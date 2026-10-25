@@ -74,6 +74,17 @@ export default function Findings() {
                   ))}
                   <Chip>{x.confidence === "confirmed" ? t("confirmed by observed action") : t("needs review")}</Chip>
                 </div>
+                {x.repeats.length > 1 && (
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs text-neutral" data-testid="finding-repeats">
+                    <span className="font-semibold">{t("Repeats:")}</span>
+                    {x.repeats.map((r) => (
+                      <span key={r.index} className="inline-flex items-center gap-1">
+                        #{r.index + 1} <StatusBadge status={r.status} />
+                      </span>
+                    ))}
+                    <span>{t("evidence is from repeat #{n}", { n: x.evidence_repeat + 1 })}</span>
+                  </div>
+                )}
                 <p className="text-[13.5px] text-ink/80">{x.description}</p>
                 {x.evidence.length > 0 && (
                   <ul className="space-y-1 text-[12.5px]">

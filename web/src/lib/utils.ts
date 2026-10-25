@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CaseResult, RepeatResult } from "./types";
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
 
@@ -12,6 +13,11 @@ export const titleCase = (s: string) =>
     .replace(/\b\w/g, (c) => c.toUpperCase())
     .replace(/\bRag\b/g, "RAG")
     .replace(/\bMcp\b/g, "MCP");
+
+/** The repeat that explains the case status (same rule as CaseResult.primary on the backend). */
+export function primaryRepeat(c: CaseResult): RepeatResult | undefined {
+  return c.repeats.find((r) => r.status === c.status) ?? c.repeats[0];
+}
 
 export const SEVERITY_ORDER = ["critical", "high", "medium", "low", "info"] as const;
 

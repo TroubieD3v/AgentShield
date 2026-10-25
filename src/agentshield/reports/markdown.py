@@ -51,6 +51,10 @@ def render_markdown(run: SuiteRun) -> str:
         ]
         for e in f.evidence[:5]:
             lines.append(f"- evidence #{e.seq}: `{_esc(e.summary)}`")
+        if len(f.repeats) > 1:
+            lines.append(
+                f"- repeats: {', '.join(f'#{r.index + 1} {r.status.value}' for r in f.repeats)} (evidence above is from repeat #{f.evidence_repeat + 1})"
+            )
         if f.remediation:
             lines += ["", f"**Remediation:** {f.remediation}"]
         lines.append("")

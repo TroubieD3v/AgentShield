@@ -124,6 +124,12 @@ export interface RunConfig {
   agents: string[];
   label: string;
 }
+export interface FindingRepeat {
+  index: number;
+  status: Status;
+  trace_id: string | null;
+  summary: string;
+}
 export interface Finding {
   id: string;
   run_id: string;
@@ -139,6 +145,8 @@ export interface Finding {
   evidence: Evidence[];
   remediation: string;
   trace_id: string | null;
+  evidence_repeat: number;
+  repeats: FindingRepeat[];
   confidence: string;
 }
 export interface Run {

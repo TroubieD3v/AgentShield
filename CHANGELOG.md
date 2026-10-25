@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Repeated runs: the evidence shown for a case now comes from the repeat that matches the final status
+  (precedence FAIL > SUSPICIOUS > ERROR > INCONCLUSIVE > PASS). Before, repeats `SUSPICIOUS, FAIL, PASS` produced a
+  FAIL case with the SUSPICIOUS repeat's evidence. Findings now keep every repeat with its own status
+  (`evidence_repeat`, `repeats`), also in the Markdown, HTML and SARIF reports and in the web UI.
+- CI: the SARIF upload to Code Scanning silently failed ("Resource not accessible by integration") because the
+  workflow only had `contents: read` and the step used `continue-on-error`. Only the `security-gate` job now gets
+  `security-events: write`, the upload runs on push only and no longer hides errors.
+
+### Added
+
+- `SARIF upload self-test` workflow (manual): uploads a report with findings under its own category, checks that
+  GitHub processed it and opened alerts, then uploads a clean report to close them.
+
 ## 0.1.0
 
 First release.

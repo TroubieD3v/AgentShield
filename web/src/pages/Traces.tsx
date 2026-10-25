@@ -8,7 +8,7 @@ import { Input, Label, Select } from "@/components/ui/form";
 import { Empty, ErrorNote, Loading, PageHeader, StatusBadge } from "@/components/common";
 import { TraceTimeline } from "@/components/TraceTimeline";
 import { api } from "@/lib/api";
-import { useAsync } from "@/lib/utils";
+import { primaryRepeat, useAsync } from "@/lib/utils";
 
 export default function Traces() {
   const { t } = useI18n();
@@ -29,7 +29,7 @@ export default function Traces() {
   const cases = useMemo(
     () =>
       (run.data?.cases ?? [])
-        .filter((c) => c.repeats[0]?.trace_id)
+        .filter((c) => primaryRepeat(c)?.trace_id)
         .filter((c) => !q || c.name.toLowerCase().includes(q.toLowerCase()))
         .sort((a, b) => Number(b.status !== "PASS") - Number(a.status !== "PASS")),
     [run.data, q],
@@ -82,7 +82,7 @@ export default function Traces() {
             ) : (
               <ul className="max-h-[560px] space-y-1 overflow-auto" data-testid="trace-cases">
                 {cases.map((c) => {
-                  const tid = c.repeats[0].trace_id!;
+                  const tid = primaryRepeat(c)!.trace_id!;
                   return (
                     <li key={c.id}>
                       <button

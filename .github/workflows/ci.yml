@@ -70,6 +70,11 @@ jobs:
   # AgentShield tested with AgentShield: the gate must pass on the hardened agent and fail on the unsafe one.
   security-gate:
     runs-on: ubuntu-latest
+    # Least privilege: only this job may write code-scanning results; everything else keeps contents: read.
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -95,12 +100,14 @@ jobs:
           agentshield baseline check current.json --name ci
           agentshield run --variant unsafe -q -f json -o worse.json --fail-on none
           ! agentshield baseline check worse.json --name ci
-      - uses: github/codeql-action/upload-sarif@v4
-        if: always() && github.event_name == 'push'
+      # The hardened agent must stay clean in Code Scanning. A failed upload fails the job (no continue-on-error).
+      # Pull requests from forks get a read-only token, so the upload only runs on pushes and same-repo PRs are skipped.
+      - name: Upload the gate result to Code Scanning
+        if: github.event_name == 'push'
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: unsafe.sarif
-          category: agentshield-demo
-        continue-on-error: true
+          sarif_file: hardened.sarif
+          category: agentshield-gate
       - uses: actions/upload-artifact@v4
         with:
           name: sarif

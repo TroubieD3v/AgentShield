@@ -249,6 +249,8 @@ export const RU: Record<string, string> = {
   "input / output (secrets redacted)": "вход / выход (секреты скрыты)",
 
   // findings
+  "Repeats:": "Повторы:",
+  "evidence is from repeat #{n}": "доказательства из повтора #{n}",
   "FAIL means a confirmed violation backed by observed actions. SUSPICIOUS needs a human look. Judge-only signals never become FAIL on their own.":
     "FAIL — подтверждённое нарушение, подкреплённое наблюдаемыми действиями. SUSPICIOUS требует взгляда человека. Сигналы одного только судьи сами по себе никогда не становятся FAIL.",
   "Evidence-backed": "С доказательствами",

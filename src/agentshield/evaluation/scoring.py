@@ -6,10 +6,20 @@ from collections import defaultdict
 from typing import Any
 
 from ..models import SEVERITY_WEIGHT, Severity, Status
-from ..results import AssertionResult, CaseResult, Finding, RepeatResult, SuiteRun, Summary, finding_id
+from ..results import (
+    STATUS_PRECEDENCE,
+    AssertionResult,
+    CaseResult,
+    Finding,
+    FindingRepeat,
+    RepeatResult,
+    SuiteRun,
+    Summary,
+    finding_id,
+)
 
 # precedence when combining several outcomes (worst first)
-_CASE_ORDER = [Status.FAIL, Status.SUSPICIOUS, Status.ERROR, Status.INCONCLUSIVE, Status.PASS]
+_CASE_ORDER = STATUS_PRECEDENCE
 _ASSERT_ORDER = [Status.ERROR, Status.FAIL, Status.SUSPICIOUS, Status.INCONCLUSIVE, Status.PASS]
 
 
@@ -105,6 +115,16 @@ def build_findings(run: SuiteRun) -> list[Finding]:
                 evidence=[e for a in failing for e in a.evidence][:8],
                 remediation=c.remediation,
                 trace_id=rep.trace_id,
+                evidence_repeat=rep.index,
+                repeats=[
+                    FindingRepeat(
+                        index=r.index,
+                        status=r.status,
+                        trace_id=r.trace_id,
+                        summary="; ".join(a.message for a in r.assertions if a.status != Status.PASS)[:300],
+                    )
+                    for r in c.repeats
+                ],
                 confidence="confirmed" if c.status == Status.FAIL else "needs_review",
             )
         )

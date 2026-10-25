@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/form";
 import { CategoryBars, Chip, Empty, ErrorNote, Loading, PageHeader, ScoreRing, Severity_, Stat, StatusBadge } from "@/components/common";
 import { ComparisonView } from "@/pages/Runs";
 import { api, downloadReport } from "@/lib/api";
-import { cn, fmtMs, fmtTime, titleCase, useAsync, usePolling } from "@/lib/utils";
+import { cn, fmtMs, fmtTime, primaryRepeat, titleCase, useAsync, usePolling } from "@/lib/utils";
 import type { CaseResult, Comparison, Status } from "@/lib/types";
 
 const FILTERS: (Status | "ALL")[] = ["ALL", "FAIL", "SUSPICIOUS", "PASS", "INCONCLUSIVE", "ERROR"];
@@ -171,7 +171,7 @@ export default function RunDetail() {
 
 function CaseRow({ c, open, onToggle }: { c: CaseResult; open: boolean; onToggle: () => void }) {
   const { t } = useI18n();
-  const rep = c.repeats.find((x) => x.status !== "PASS") ?? c.repeats[0];
+  const rep = primaryRepeat(c);
   return (
     <div className="py-2.5">
       <button onClick={onToggle} className="grid w-full cursor-pointer grid-cols-[110px_1fr_auto] items-center gap-3 text-left" aria-expanded={open}>

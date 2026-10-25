@@ -58,7 +58,14 @@ def render_sarif(run: SuiteRun) -> str:
             "message": {"text": f"{f.title} ({f.agent}, {cases[f.case_key].mode}): {f.description}"},
             "locations": [{"physicalLocation": {"artifactLocation": {"uri": uri}, "region": {"startLine": 1}}}],
             "partialFingerprints": {"agentshield/finding": f.id},
-            "properties": {"status": f.status.value, "confidence": f.confidence, "agent": f.agent, "traceId": f.trace_id},
+            "properties": {
+                "status": f.status.value,
+                "confidence": f.confidence,
+                "agent": f.agent,
+                "traceId": f.trace_id,
+                "evidenceRepeat": f.evidence_repeat,
+                "repeats": [{"index": r.index, "status": r.status.value} for r in f.repeats],
+            },
         }
         if flow_locations:
             result["codeFlows"] = [{"threadFlows": [{"locations": flow_locations}]}]

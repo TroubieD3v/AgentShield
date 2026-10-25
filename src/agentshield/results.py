@@ -11,6 +11,9 @@ from pydantic import BaseModel, Field
 from .models import Severity, Status, Usage, new_id
 from .trace import Trace
 
+# precedence when several outcomes are combined into one (worst first); the case status follows it
+STATUS_PRECEDENCE = [Status.FAIL, Status.SUSPICIOUS, Status.ERROR, Status.INCONCLUSIVE, Status.PASS]
+
 
 class EvidenceRef(BaseModel):
     event_id: str | None = None
@@ -70,9 +73,18 @@ class CaseResult(BaseModel):
 
     @property
     def primary(self) -> RepeatResult:
+        """The repeat that *explains the case status*: evidence must come from the outcome that was reported.
+
+        With repeats [SUSPICIOUS, FAIL, PASS] the case is FAIL, so the FAIL repeat is returned, not the first
+        non-passing one. Ties keep the earliest repeat.
+        """
         for r in self.repeats:
-            if r.status not in (Status.PASS,):
+            if r.status == self.status:
                 return r
+        for s in STATUS_PRECEDENCE:  # status was set by hand: fall back to the worst repeat
+            for r in self.repeats:
+                if r.status == s:
+                    return r
         return self.repeats[0]
 
 
@@ -118,6 +130,15 @@ class SuiteRun(BaseModel):
     progress: dict[str, int] = Field(default_factory=lambda: {"done": 0, "total": 0})
 
 
+class FindingRepeat(BaseModel):
+    """One repeat of a finding's case, with its own status, so no outcome is hidden behind the headline one."""
+
+    index: int
+    status: Status
+    trace_id: str | None = None
+    summary: str = ""
+
+
 class Finding(BaseModel):
     id: str
     run_id: str
@@ -132,7 +153,9 @@ class Finding(BaseModel):
     description: str = ""
     evidence: list[EvidenceRef] = Field(default_factory=list)
     remediation: str = ""
-    trace_id: str | None = None
+    trace_id: str | None = None  # trace of the repeat that matches the finding's status
+    evidence_repeat: int = 0  # index of that repeat
+    repeats: list[FindingRepeat] = Field(default_factory=list)  # every repeat with its own status
     confidence: str = "confirmed"  # confirmed | needs_review
 
 

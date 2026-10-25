@@ -54,6 +54,7 @@ code,pre{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0a0c0f;border
 <details><summary><span class="badge {{ f.status.value }}">{{ f.status.value }}</span> <span class="sev-{{ f.severity.value }}">{{ f.severity.value|upper }}</span> · {{ f.title }} <span class="muted">· {{ f.id }}</span></summary>
  <p class="muted">{{ f.category }} · agent <code>{{ f.agent }}</code>{% if f.owasp %} · {{ f.owasp|join(', ') }}{% endif %}</p>
  <p>{{ f.description }}</p>
+ {% if f.repeats|length > 1 %}<p class="muted">Repeats: {% for r in f.repeats %}<span class="badge {{ r.status.value }}">#{{ r.index + 1 }} {{ r.status.value }}</span> {% endfor %}(evidence is from repeat #{{ f.evidence_repeat + 1 }})</p>{% endif %}
  {% if f.evidence %}<p><b>Evidence</b></p><ul>{% for e in f.evidence[:6] %}<li>#{{ e.seq }} <code>{{ e.summary }}</code></li>{% endfor %}</ul>{% endif %}
  {% if f.remediation %}<p><b>Remediation:</b> {{ f.remediation }}</p>{% endif %}
  {% set tr = traces.get(f.trace_id) %}{% if tr %}<p><b>Agent execution trace</b></p><ul class="tl">

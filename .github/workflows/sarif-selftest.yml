@@ -1,0 +1,89 @@
+name: SARIF upload self-test
+
+# Manual check that Code Scanning really accepts AgentShield SARIF: upload a report with findings under a
+# dedicated category, confirm GitHub processed it and created alerts, then upload a clean report to the same
+# category so the alerts close again. The regular CI gate never uploads the unsafe report.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sarif-selftest
+  cancel-in-progress: false
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CATEGORY: agentshield-selftest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e . jsonschema
+
+      - name: Build SARIF with findings and a clean one
+        run: |
+          agentshield run --variant unsafe --mode monitor -q --fail-on none -f sarif -o unsafe.sarif
+          agentshield run --variant hardened --mode enforce -q --fail-on none -f sarif -o hardened.sarif
+          python scripts/check_sarif.py unsafe.sarif --expect-findings 30
+          python scripts/check_sarif.py hardened.sarif --expect-none
+
+      - name: Upload SARIF with findings
+        id: upload_unsafe
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: unsafe.sarif
+          category: ${{ env.CATEGORY }}
+
+      - name: GitHub processed it and created alerts
+        env:
+          SARIF_ID: ${{ steps.upload_unsafe.outputs.sarif-id }}
+        run: |
+          for i in $(seq 1 30); do
+            status=$(gh api "repos/$GITHUB_REPOSITORY/code-scanning/sarifs/$SARIF_ID" --jq .processing_status)
+            echo "processing_status=$status"
+            [ "$status" = "complete" ] && break
+            [ "$status" = "failed" ] && { gh api "repos/$GITHUB_REPOSITORY/code-scanning/sarifs/$SARIF_ID"; exit 1; }
+            sleep 5
+          done
+          [ "$status" = "complete" ]
+          gh api "repos/$GITHUB_REPOSITORY/code-scanning/sarifs/$SARIF_ID" --jq '"errors: \(.errors)"'
+          count=$(gh api "repos/$GITHUB_REPOSITORY/code-scanning/analyses?tool_name=AgentShield&ref=$GITHUB_REF" \
+            --jq "[.[] | select(.category == \"$CATEGORY\")] | first | .results_count")
+          echo "results_count=$count"
+          test "$count" -ge 30
+          open=$(gh api --paginate "repos/$GITHUB_REPOSITORY/code-scanning/alerts?tool_name=AgentShield&ref=$GITHUB_REF&state=open&per_page=100" --jq '.[].number' | wc -l)
+          echo "open alerts=$open"
+          test "$open" -ge 1
+
+      - name: Upload the clean SARIF to the same category (closes the alerts)
+        id: upload_clean
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: hardened.sarif
+          category: ${{ env.CATEGORY }}
+
+      - name: Alerts are closed after the clean upload
+        env:
+          SARIF_ID: ${{ steps.upload_clean.outputs.sarif-id }}
+        run: |
+          for i in $(seq 1 30); do
+            status=$(gh api "repos/$GITHUB_REPOSITORY/code-scanning/sarifs/$SARIF_ID" --jq .processing_status)
+            [ "$status" = "complete" ] && break
+            sleep 5
+          done
+          [ "$status" = "complete" ]
+          sleep 5
+          open=$(gh api --paginate "repos/$GITHUB_REPOSITORY/code-scanning/alerts?tool_name=AgentShield&ref=$GITHUB_REF&state=open&per_page=100" --jq '.[] | select(.most_recent_instance.category == env.CATEGORY) | .number' | wc -l)
+          echo "open alerts after clean upload=$open"
+          test "$open" -eq 0
