@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  selftest:
+  open-alerts:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -66,6 +66,28 @@ jobs:
           echo "open alerts=$open"
           test "$open" -ge 1
 
+  # The upload action allows one upload per tool/category per job, so closing the alerts is a second job.
+  # It runs even if the checks above failed, so the self-test never leaves open alerts behind.
+  close-alerts:
+    needs: open-alerts
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CATEGORY: agentshield-selftest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -e .
+      - run: agentshield run --variant hardened --mode enforce -q --fail-on none -f sarif -o hardened.sarif
+
       - name: Upload the clean SARIF to the same category (closes the alerts)
         id: upload_clean
         uses: github/codeql-action/upload-sarif@v4
@@ -84,6 +106,6 @@ jobs:
           done
           [ "$status" = "complete" ]
           sleep 5
-          open=$(gh api --paginate "repos/$GITHUB_REPOSITORY/code-scanning/alerts?tool_name=AgentShield&ref=$GITHUB_REF&state=open&per_page=100" --jq '.[] | select(.most_recent_instance.category == env.CATEGORY) | .number' | wc -l)
+          open=$(gh api --paginate "repos/$GITHUB_REPOSITORY/code-scanning/alerts?tool_name=AgentShield&ref=$GITHUB_REF&state=open&per_page=100" --jq '.[] | select(.most_recent_instance.category | startswith(env.CATEGORY)) | .number' | wc -l)
           echo "open alerts after clean upload=$open"
           test "$open" -eq 0
