@@ -260,6 +260,7 @@ out of the box.
 | Version | Result |
 |---|---|
 | **v0.1.0** | **12 modules, 46 scenarios (60 cases), 3 demo agents × 3 configurations, Monitor and Enforce, HTML / JSON / SARIF / Markdown, CLI, SDK and guard proxy, web UI, Docker Compose, GitHub Actions** |
+| **v0.1.1** | Evidence of a repeated case comes from the repeat that explains its status; SARIF upload to Code Scanning fixed and verified |
 
 Pushing a `v*` tag builds the wheel (with the web UI inside) and checksums ([release.yml](.github/workflows/release.yml)).
 
