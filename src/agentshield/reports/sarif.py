@@ -44,9 +44,12 @@ def render_sarif(run: SuiteRun) -> str:
         if tr:
             for e in tr.events:
                 if e.type.value in {"user_message", "tool_call", "policy_decision", "document_retrieval", "final_response"}:
+                    # GitHub Code Scanning rejects thread-flow steps without a physicalLocation; trace events have no
+                    # source line, so every step is anchored to the scenario file and the step itself is in the message.
                     flow_locations.append(
                         {
                             "location": {
+                                "physicalLocation": {"artifactLocation": {"uri": uri}, "region": {"startLine": 1}},
                                 "message": {"text": f"#{e.seq} {e.type.value}: {e.title}" + (" [violation]" if e.status in {"violation", "blocked"} else "")},
                                 "logicalLocations": [{"name": e.title, "kind": "function"}],
                             }

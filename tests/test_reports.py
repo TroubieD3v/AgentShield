@@ -42,6 +42,11 @@ def test_sarif_structure(run):
         assert r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"].endswith(".yaml")
         assert r["partialFingerprints"]["agentshield/finding"].startswith("AS-")
     assert any("codeFlows" in r for r in results)
+    # GitHub Code Scanning refuses code flow steps without a physical location
+    for r in results:
+        for flow in r.get("codeFlows", []):
+            for step in flow["threadFlows"][0]["locations"]:
+                assert step["location"]["physicalLocation"]["artifactLocation"]["uri"].endswith(".yaml")
 
 
 def test_secrets_never_reach_any_report():

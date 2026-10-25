@@ -12,6 +12,10 @@
   workflow only had `contents: read` and the step used `continue-on-error`. Only the `security-gate` job now gets
   `security-events: write`, the upload runs on push only and no longer hides errors.
 
+- SARIF: code flow steps now carry a `physicalLocation`. GitHub Code Scanning rejected every report with findings
+  ("buildCodeFlows: expected physical location") although it is valid SARIF 2.1.0; `scripts/check_sarif.py` and the
+  unit tests now check for it.
+
 ### Added
 
 - `SARIF upload self-test` workflow (manual): uploads a report with findings under its own category, checks that

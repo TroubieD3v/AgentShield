@@ -40,6 +40,13 @@ def main(argv: list[str]) -> int:
             problems.append(f"result {r['ruleId']} has no location (GitHub code scanning needs one)")
         if "agentshield/finding" not in r.get("partialFingerprints", {}):
             problems.append(f"result {r['ruleId']} has no fingerprint")
+        # GitHub Code Scanning: "buildCodeFlows: expected physical location" if a flow step has none.
+        for flow in r.get("codeFlows", []):
+            for tf in flow.get("threadFlows", []):
+                for step in tf.get("locations", []):
+                    if "physicalLocation" not in step.get("location", {}):
+                        problems.append(f"result {r['ruleId']} has a code flow step without physicalLocation")
+                        break
 
     if "--expect-none" in argv and results:
         problems.append(f"expected a clean run but found {len(results)} result(s)")
