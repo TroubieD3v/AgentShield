@@ -115,7 +115,8 @@ test("policies: schema validation, custom policy, live demo", async ({ page }) =
   const editor = page.getByLabel("Policy YAML");
   await editor.fill("id: broken\nrules:\n  - id: r\n    when: {made_up: true}\n");
   await page.getByRole("button", { name: "Validate" }).click();
-  await expect(page.getByText(/made_up/)).toBeVisible();
+  // Match the validation error, not the editor: the textarea can also contain "made_up" after a re-render.
+  await expect(page.getByText(/unknown condition.*made_up/)).toBeVisible();
   await editor.fill("id: e2e-policy\nrules:\n  - id: r1\n    tools: [send_email]\n    when: {unauthorized: true}\n");
   await page.getByRole("button", { name: "Save as new policy" }).click();
   await expect(page.getByText('Saved as "e2e-policy".')).toBeVisible();
