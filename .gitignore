@@ -22,6 +22,5 @@ web/playwright-report/
 
 src/agentshield/ui/
 docs/screenshots/frames/
-.claude/
 .tmp-whl/
 .coverage
