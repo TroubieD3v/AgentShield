@@ -6,7 +6,7 @@ RUN npm ci
 COPY web/ ./
 RUN npm run build
 
-FROM python:3.13-slim AS app
+FROM python:3.15-slim AS app
 ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 AGENTSHIELD_HOME=/data AGENTSHIELD_UI_DIR=/app/ui AGENTSHIELD_ALLOW_BIND_ALL=1
 WORKDIR /app
 COPY pyproject.toml README.md LICENSE ./
