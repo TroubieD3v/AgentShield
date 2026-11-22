@@ -1,84 +1,79 @@
 @import "tailwindcss";
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/manrope";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
 
 /*
- * Visual language: EcoSync "luminous" theme (tonal surfaces, soft shadows, no hard borders) with the palette from the
- * design board: Primary #121212, Secondary #008542, Tertiary #D97706, Neutral #64748B. Type: Manrope headlines, Inter body.
+ * Graphite: neutral grey surfaces, hairline borders, colour reserved for data (status, severity, policy decisions).
  * Two themes share one set of semantic tokens: dark (default) and light, switched by the `dark` class on <html>.
  */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   color-scheme: light;
-  --c-bg: #f8f9ff;
-  --c-panel: #ffffff;
-  --c-surface-low: #eff4ff;
-  --c-surface: #e5eeff;
-  --c-surface-high: #dce9ff;
-  --c-surface-highest: #d3e4fe;
-  --c-line: #cddcf3;
-  --c-ink: #0b1c30;
-  --c-neutral: #64748b;
-  --c-primary: #121212;
+  --c-bg: #eef0f2;
+  --c-chrome: #e2e5e8;
+  --c-panel: #f8f9fa;
+  --c-surface-low: #f1f3f5;
+  --c-surface: #e6e9ec;
+  --c-surface-high: #dce0e4;
+  --c-surface-highest: #cdd3d9;
+  --c-line: #cdd3d9;
+  --c-line-soft: #dfe3e7;
+  --c-ink: #1e2227;
+  --c-neutral: #5b626a;
+  --c-dim: #7a828a;
+  --c-sel: #dbe5ef;
+  --c-accent: #2c5d8a;
+  --c-primary: #3a6693;
   --c-on-primary: #ffffff;
-  --c-primary-hover: #2a2a2a;
-  --c-secondary: #008542;
+  --c-primary-hover: #2c5d8a;
+  --c-secondary: #3b6a4a;
   --c-on-secondary: #ffffff;
-  --c-tertiary: #d97706;
+  --c-tertiary: #87601a;
   --c-on-tertiary: #ffffff;
-  --c-tertiary-text: #a85a04;
-  --c-error: #b91c1c;
+  --c-tertiary-text: #87601a;
+  --c-error: #a8402f;
   --c-on-error: #ffffff;
-  --c-inverse: #213145;
-  --c-on-inverse: #ffffff;
-  --c-inverse-hover: #2c4060;
-  --c-ring-good: #00d166;
-  --c-pill: #64ff92;
-  --c-on-pill: #00210b;
-  --c-tip: #d8e2ff;
-  --c-on-tip: #001a41;
-  --c-shadow: rgba(11, 28, 48, 0.07);
-  --c-shadow-lift: rgba(11, 28, 48, 0.2);
-  --c-scroll: #b9c9e4;
+  --c-info: #55687a;
+  --c-scroll: #b9c0c7;
 }
 
 .dark {
   color-scheme: dark;
-  --c-bg: #090d13;
-  --c-panel: #111721;
-  --c-surface-low: #151c27;
-  --c-surface: #1a2332;
-  --c-surface-high: #222d40;
-  --c-surface-highest: #2b384e;
-  --c-line: #26324a;
-  --c-ink: #e8eef8;
-  --c-neutral: #8a9ab3;
-  --c-primary: #f1f4f9;
-  --c-on-primary: #0b0f15;
-  --c-primary-hover: #ffffff;
-  --c-secondary: #31d57b;
-  --c-on-secondary: #03210f;
-  --c-tertiary: #f5a03a;
-  --c-on-tertiary: #2a1500;
-  --c-tertiary-text: #f5a03a;
-  --c-error: #ff7b7b;
-  --c-on-error: #2a0404;
-  --c-inverse: #1b2b44;
-  --c-on-inverse: #ffffff;
-  --c-inverse-hover: #243a5c;
-  --c-ring-good: #31d57b;
-  --c-pill: #31d57b;
-  --c-on-pill: #03210f;
-  --c-tip: #1c2c4a;
-  --c-on-tip: #dbe6ff;
-  --c-shadow: rgba(0, 0, 0, 0.45);
-  --c-shadow-lift: rgba(0, 0, 0, 0.6);
-  --c-scroll: #33425e;
+  --c-bg: #191b1e;
+  --c-chrome: #141619;
+  --c-panel: #1f2226;
+  --c-surface-low: #1b1d21;
+  --c-surface: #24272c;
+  --c-surface-high: #2b2f35;
+  --c-surface-highest: #343940;
+  --c-line: #2f333a;
+  --c-line-soft: #25282d;
+  --c-ink: #d5d7da;
+  --c-neutral: #8d939a;
+  --c-dim: #6b7178;
+  --c-sel: #293441;
+  --c-accent: #8fb4d8;
+  --c-primary: #3e6489;
+  --c-on-primary: #f2f5f8;
+  --c-primary-hover: #4a73a0;
+  --c-secondary: #94b08e;
+  --c-on-secondary: #15181b;
+  --c-tertiary: #d0a866;
+  --c-on-tertiary: #15181b;
+  --c-tertiary-text: #d0a866;
+  --c-error: #d98577;
+  --c-on-error: #15181b;
+  --c-info: #9ba8b5;
+  --c-scroll: #3a3f46;
 }
 
 @theme inline {
   --color-bg: var(--c-bg);
+  --color-chrome: var(--c-chrome);
   --color-panel: var(--c-panel);
   --color-panel-2: var(--c-surface-low);
   --color-surface-low: var(--c-surface-low);
@@ -86,9 +81,13 @@
   --color-surface-high: var(--c-surface-high);
   --color-surface-highest: var(--c-surface-highest);
   --color-line: var(--c-line);
+  --color-line-soft: var(--c-line-soft);
   --color-ink: var(--c-ink);
   --color-muted: var(--c-neutral);
   --color-neutral: var(--c-neutral);
+  --color-dim: var(--c-dim);
+  --color-sel: var(--c-sel);
+  --color-accent: var(--c-accent);
   --color-primary: var(--c-primary);
   --color-on-primary: var(--c-on-primary);
   --color-primary-hover: var(--c-primary-hover);
@@ -99,23 +98,14 @@
   --color-tertiary-text: var(--c-tertiary-text);
   --color-error: var(--c-error);
   --color-on-error: var(--c-on-error);
-  --color-inverse: var(--c-inverse);
-  --color-on-inverse: var(--c-on-inverse);
-  --color-inverse-hover: var(--c-inverse-hover);
-  --color-pill: var(--c-pill);
-  --color-on-pill: var(--c-on-pill);
-  --color-tip: var(--c-tip);
-  --color-on-tip: var(--c-on-tip);
+  --color-info: var(--c-info);
   --color-ok: var(--c-secondary);
   --color-bad: var(--c-error);
   --color-warn: var(--c-tertiary);
   --color-amber: var(--c-tertiary);
-  --color-sky: var(--c-inverse);
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
-  --font-headline: "Manrope Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
-  --shadow-editorial: 0 24px 40px -12px var(--c-shadow);
-  --shadow-lift: 0 10px 28px -10px var(--c-shadow-lift);
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-headline: "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
 }
 
 html,
@@ -128,22 +118,14 @@ body {
   background: var(--c-bg);
   color: var(--c-ink);
   font-family: var(--font-sans);
-  font-size: 14px;
-  -webkit-font-smoothing: antialiased;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-h1,
-h2,
-h3,
-h4,
-.font-headline {
-  font-family: var(--font-headline);
+  font-size: 13px;
+  line-height: 1.45;
+  font-feature-settings: "tnum";
 }
 
 ::selection {
-  background: var(--c-secondary);
-  color: var(--c-on-secondary);
+  background: var(--c-sel);
+  color: var(--c-ink);
 }
 
 * {
@@ -155,12 +137,6 @@ h4,
   font-family: var(--font-mono);
 }
 
-.glass {
-  background: color-mix(in srgb, var(--c-bg) 80%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
-
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -170,8 +146,8 @@ h4,
 }
 
 :focus-visible {
-  outline: 2px solid var(--c-primary);
-  outline-offset: 2px;
+  outline: 1px solid var(--c-accent);
+  outline-offset: 1px;
 }
 
 @media (prefers-reduced-motion: reduce) {

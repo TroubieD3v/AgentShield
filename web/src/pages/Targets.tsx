@@ -79,15 +79,13 @@ export default function Targets() {
         subtitle={t("Test the built-in sandbox agents, your own HTTP agent, or drive the sandbox with a live model. Outbound connections are limited to an explicit allowlist.")}
       />
 
-      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t("Built-in demo agents")}</h2>
-      <div className="grid gap-4 lg:grid-cols-3" data-testid="builtin-agents">
+      <h2 className="mb-2 text-[12.5px] font-semibold text-ink">{t("Built-in demo agents")}</h2>
+      <div className="grid gap-3 lg:grid-cols-3" data-testid="builtin-agents">
         {meta.data.agents.map((a) => (
           <Card key={a.name}>
-            <CardHeader>
-              <div>
-                <CardTitle>{a.title}</CardTitle>
-                <CardDescription>{a.description}</CardDescription>
-              </div>
+            <CardHeader className="block py-2">
+              <CardTitle>{a.title}</CardTitle>
+              <CardDescription>{a.description}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex flex-wrap gap-1">
@@ -100,7 +98,7 @@ export default function Targets() {
                   <tr className="text-left text-muted">
                     <th className="pb-1 font-medium">{t("Defense")}</th>
                     {a.variants.map((v) => (
-                      <th key={v.variant} className="pb-1 text-center font-medium">
+                      <th key={v.variant} className="mono pb-1 text-center text-[11px] font-normal">
                         {v.variant}
                       </th>
                     ))}
@@ -111,7 +109,7 @@ export default function Targets() {
                     <tr key={k} className="border-t border-line">
                       <td className="py-1 text-muted">{t(label)}</td>
                       {a.variants.map((v) => (
-                        <td key={v.variant} className="py-1 text-center">
+                        <td key={v.variant} className="py-0.5 text-center">
                           {v.hardening[k] ? <Check className="mx-auto h-3.5 w-3.5 text-ok" aria-label={t("on")} /> : <Minus className="mx-auto h-3.5 w-3.5 text-neutral/40" aria-label={t("off")} />}
                         </td>
                       ))}
@@ -124,12 +122,12 @@ export default function Targets() {
         ))}
       </div>
 
-      <div className="mt-8 grid gap-4 lg:grid-cols-2">
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Plug className="h-4 w-4 text-secondary" /> {t("HTTP agent targets")}
+                <Plug className="h-3.5 w-3.5 text-neutral" /> {t("HTTP agent targets")}
               </CardTitle>
               <CardDescription>
                 {t("Black-box: AgentShield sees responses (and tool calls only if your app reports them). Missing telemetry yields INCONCLUSIVE, never a pass. Allowed hosts:")}{" "}
@@ -137,9 +135,9 @@ export default function Targets() {
               </CardDescription>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {(targets.data ?? []).map((x) => (
-              <div key={x.name} className="flex items-center justify-between gap-3 rounded-xl bg-surface-low px-3.5 py-2.5">
+              <div key={x.name} className="flex items-center justify-between gap-3 rounded border border-line-soft bg-surface-low px-2.5 py-1.5">
                 <div className="min-w-0">
                   <div className="font-medium">{x.name}</div>
                   <div className="mono truncate text-xs text-muted">{x.url}</div>
@@ -171,7 +169,7 @@ export default function Targets() {
                 </div>
               </div>
             ))}
-            <div className="grid grid-cols-2 gap-3 border-t border-line pt-4">
+            <div className="grid grid-cols-2 gap-2 border-t border-line pt-3">
               <div>
                 <Label htmlFor="t-name">{t("Name")}</Label>
                 <Input id="t-name" value={tg.name} onChange={(e) => setTg({ ...tg, name: e.target.value })} />
@@ -219,9 +217,9 @@ export default function Targets() {
               </CardDescription>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {(models.data ?? []).map((x) => (
-              <div key={x.name} className="flex items-center justify-between gap-3 rounded-xl bg-surface-low px-3.5 py-2.5">
+              <div key={x.name} className="flex items-center justify-between gap-3 rounded border border-line-soft bg-surface-low px-2.5 py-1.5">
                 <div className="min-w-0">
                   <div className="font-medium">
                     {x.name} <span className="text-xs text-muted">· {x.kind}</span>
@@ -256,7 +254,7 @@ export default function Targets() {
                 </div>
               </div>
             ))}
-            <div className="grid grid-cols-2 gap-3 border-t border-line pt-4">
+            <div className="grid grid-cols-2 gap-2 border-t border-line pt-3">
               <div>
                 <Label htmlFor="m-name">{t("Name")}</Label>
                 <Input id="m-name" value={m.name} onChange={(e) => setM({ ...m, name: e.target.value })} />

@@ -2,16 +2,16 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-const badgeVariants = cva("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11.5px] font-bold tracking-wide whitespace-nowrap", {
+const badgeVariants = cva("inline-flex h-[18px] items-center gap-1 rounded-[3px] border px-1.5 text-[11px] font-medium leading-none whitespace-nowrap", {
   variants: {
     tone: {
-      neutral: "bg-surface text-neutral",
-      ok: "bg-secondary/12 text-secondary",
-      bad: "bg-error/10 text-error",
-      warn: "bg-tertiary/14 text-tertiary-text",
-      amber: "bg-tertiary/14 text-tertiary-text",
-      sky: "bg-inverse/10 text-inverse",
-      solid: "bg-primary text-on-primary",
+      neutral: "border-line bg-surface text-neutral",
+      ok: "border-secondary/35 bg-secondary/10 text-secondary",
+      bad: "border-error/40 bg-error/10 text-error",
+      warn: "border-tertiary/40 bg-tertiary/10 text-tertiary-text",
+      amber: "border-tertiary/40 bg-tertiary/10 text-tertiary-text",
+      sky: "border-accent/35 bg-accent/10 text-accent",
+      solid: "border-primary bg-primary text-on-primary",
     },
   },
   defaultVariants: { tone: "neutral" },

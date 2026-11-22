@@ -5,37 +5,40 @@ import { cn } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n";
 
 const field =
-  "w-full rounded-lg border border-line bg-surface-low px-3 py-2 text-sm text-ink placeholder:text-neutral/70 transition-colors focus:border-primary focus:bg-panel focus:outline-none disabled:opacity-50";
+  "w-full rounded border border-line bg-surface-low px-2 py-1 text-[12.5px] text-ink placeholder:text-dim transition-colors focus:border-accent focus:outline-none disabled:opacity-50";
 
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(({ className, ...p }, ref) => (
-  <input ref={ref} className={cn(field, "h-10", className)} {...p} />
+  <input ref={ref} className={cn(field, "h-7", className)} {...p} />
 ));
 Input.displayName = "Input";
 
 export const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(({ className, ...p }, ref) => (
-  <textarea ref={ref} className={cn(field, "min-h-20 font-mono text-[13px]", className)} {...p} />
+  <textarea ref={ref} className={cn(field, "min-h-16 font-mono text-[12px] leading-relaxed", className)} {...p} />
 ));
 Textarea.displayName = "Textarea";
 
 export const Select = React.forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(({ className, ...p }, ref) => (
-  <select ref={ref} className={cn(field, "h-10 pr-8", className)} {...p} />
+  <select ref={ref} className={cn(field, "h-7 pr-6", className)} {...p} />
 ));
 Select.displayName = "Select";
 
 export const Label = ({ className, ...p }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
-  <label className={cn("mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-neutral", className)} {...p} />
+  <label className={cn("mb-1 block text-xs font-medium text-neutral", className)} {...p} />
 );
 
 export const Switch = ({ className, ...p }: React.ComponentProps<typeof SwitchPrimitive.Root>) => (
   <SwitchPrimitive.Root
-    className={cn("relative h-6 w-11 cursor-pointer rounded-full bg-surface-highest transition-colors data-[state=checked]:bg-secondary", className)}
+    className={cn(
+      "relative h-4 w-7 shrink-0 cursor-pointer rounded-full border border-line bg-surface-high transition-colors data-[state=checked]:border-primary data-[state=checked]:bg-primary",
+      className,
+    )}
     {...p}
   >
-    <SwitchPrimitive.Thumb className="block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-[22px]" />
+    <SwitchPrimitive.Thumb className="block h-2.5 w-2.5 translate-x-[2px] rounded-full bg-neutral transition-transform data-[state=checked]:translate-x-[14px] data-[state=checked]:bg-on-primary" />
   </SwitchPrimitive.Root>
 );
 
-/** Pill segmented control (Monitor / Enforce, agent configuration): active segment is the Primary black. */
+/** Segmented control (Monitor / Enforce, agent configuration). */
 export function Segmented<T extends string>({
   value,
   onChange,
@@ -52,12 +55,12 @@ export function Segmented<T extends string>({
   const { t } = useI18n();
   return (
     <TabsPrimitive.Root value={value} onValueChange={(v) => onChange(v as T)} className={className}>
-      <TabsPrimitive.List aria-label={ariaLabel} className="grid auto-cols-fr grid-flow-col gap-1 rounded-full bg-surface p-1">
+      <TabsPrimitive.List aria-label={ariaLabel} className="inline-grid auto-cols-fr grid-flow-col rounded border border-line bg-surface-low p-px">
         {options.map((o) => (
           <TabsPrimitive.Trigger
             key={o.value}
             value={o.value}
-            className="cursor-pointer rounded-full px-4 py-1.5 text-sm font-semibold text-neutral transition-all hover:text-ink data-[state=active]:bg-primary data-[state=active]:text-on-primary data-[state=active]:shadow-lift"
+            className="h-6 cursor-pointer whitespace-nowrap rounded-[3px] px-3 text-[12.5px] font-medium text-neutral transition-colors hover:text-ink data-[state=active]:bg-surface-highest data-[state=active]:text-ink"
           >
             {t(o.label)}
           </TabsPrimitive.Trigger>

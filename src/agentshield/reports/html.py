@@ -14,22 +14,22 @@ TEMPLATE = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AgentShield report {{ run.id }}</title>
 <style>
-:root{--bg:#0d0f12;--panel:#15181d;--line:#262b33;--text:#e6e8eb;--muted:#a2a6ae;--amber:#e8a33d;--blue:#7cc4e8;--red:#ef6b6b;--green:#5fd39a;--violet:#b7a3f0}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
-main{max-width:1080px;margin:0 auto;padding:32px 20px 80px}h1{font-size:24px;margin:0 0 4px}h2{font-size:17px;margin:36px 0 12px;color:var(--blue)}
-.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
-.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.tile b{display:block;font-size:26px}
-.badge{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600;border:1px solid}
-.PASS{color:var(--green);border-color:#25563f;background:#10261c}.FAIL{color:var(--red);border-color:#6b2c2c;background:#2a1313}
-.SUSPICIOUS{color:var(--amber);border-color:#6b4f1d;background:#2a2010}.INCONCLUSIVE,.ERROR{color:var(--muted);border-color:#3a3f48;background:#1a1d22}
-.sev-critical{color:#ff8a8a}.sev-high{color:var(--red)}.sev-medium{color:var(--amber)}.sev-low,.sev-info{color:var(--muted)}
-.bar{height:8px;border-radius:99px;background:#20242b;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--green))}
-table{width:100%;border-collapse:collapse}th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
-details{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:10px 0;padding:10px 14px}summary{cursor:pointer;font-weight:600}
-code,pre{font:12px/1.5 ui-monospace,Consolas,monospace;background:#0a0c0f;border-radius:6px}pre{padding:10px;overflow:auto;white-space:pre-wrap;word-break:break-word}code{padding:1px 5px}
-.tl{list-style:none;margin:10px 0;padding:0}.tl li{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}
-.ev-violation,.ev-blocked{border-left:3px solid var(--red);padding-left:8px}.ev-blocked .t{color:var(--green)}
-.warn{border:1px solid #6b4f1d;background:#2a2010;color:var(--amber);padding:10px 14px;border-radius:10px;margin:14px 0}
+:root{color-scheme:dark;--bg:#191b1e;--panel:#1f2226;--panel2:#24272c;--line:#2f333a;--line2:#25282d;--text:#d5d7da;--muted:#8d939a;--amber:#d0a866;--blue:#8fb4d8;--red:#d98577;--green:#94b08e;--violet:#9ba8b5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 'IBM Plex Sans',system-ui,'Segoe UI',sans-serif;font-feature-settings:"tnum"}
+main{max-width:1080px;margin:0 auto;padding:28px 20px 72px}h1{font-size:20px;font-weight:600;margin:0 0 4px}h2{font-size:14px;font-weight:600;margin:28px 0 8px;color:var(--text)}
+.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;margin:16px 0;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.tile{background:var(--panel);padding:8px 12px}.tile span{font-size:12px}.tile b{display:block;font:500 18px 'IBM Plex Mono',ui-monospace,Consolas,monospace}
+.badge{display:inline-block;border-radius:3px;padding:0 6px;font-size:11px;font-weight:500;line-height:18px;border:1px solid}
+.PASS{color:var(--green);border-color:#4c5c49;background:#232b23}.FAIL{color:var(--red);border-color:#6e4740;background:#2e2321}
+.SUSPICIOUS{color:var(--amber);border-color:#6c5a39;background:#2d2820}.INCONCLUSIVE,.ERROR{color:var(--muted);border-color:var(--line);background:var(--panel2)}
+.sev-critical,.sev-high{color:var(--red)}.sev-medium{color:var(--amber)}.sev-low,.sev-info{color:var(--muted)}
+.bar{display:inline-block;width:70%;height:6px;background:#2b2f35;overflow:hidden;vertical-align:middle}.bar i{display:block;height:100%;background:var(--blue)}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line)}th,td{padding:5px 8px;text-align:left;border-bottom:1px solid var(--line2);vertical-align:top}th{color:var(--muted);font-weight:500;font-size:12px;background:var(--panel2);border-bottom-color:var(--line)}
+details{background:var(--panel);border:1px solid var(--line);border-radius:4px;margin:6px 0;padding:8px 12px}summary{cursor:pointer;font-weight:500}
+code,pre{font:12px/1.5 'IBM Plex Mono',ui-monospace,Consolas,monospace;background:var(--bg);border-radius:3px}pre{padding:8px 10px;overflow:auto;white-space:pre-wrap;word-break:break-word;border:1px solid var(--line2)}code{padding:0 4px}
+.tl{list-style:none;margin:8px 0;padding:0}.tl li{display:grid;grid-template-columns:34px 1fr;gap:8px;padding:4px 0;border-bottom:1px solid var(--line2)}
+.ev-violation,.ev-blocked{border-left:2px solid var(--red);padding-left:8px}.ev-blocked .t{color:var(--green)}
+.warn{border:1px solid #6c5a39;background:#2d2820;color:var(--amber);padding:8px 12px;border-radius:4px;margin:12px 0}
 </style></head><body><main>
 <h1>AgentShield report</h1>
 <div class="muted">{{ label }} · run <code>{{ run.id }}</code> · {{ when }} · v{{ run.agentshield_version }}</div>

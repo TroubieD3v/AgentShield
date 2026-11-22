@@ -15,27 +15,40 @@ const STATUS_TONE: Record<Status, "ok" | "bad" | "warn" | "neutral"> = {
 
 export const StatusBadge = ({ status, mitigated }: { status: Status; mitigated?: boolean }) => {
   const { t } = useI18n();
-  return ((
-  <span className="inline-flex items-center gap-1.5">
-    <Badge tone={STATUS_TONE[status]}>{status}</Badge>
-    {mitigated && (
-      <span title={t("Passed because a policy or application defense blocked an attempt")} className="text-xs font-bold text-tertiary">
-        ★
-      </span>
-    )}
-  </span>
-));
+  return (
+    <span className="inline-flex items-center gap-1">
+      <Badge tone={STATUS_TONE[status]} className="mono text-[10.5px]">
+        {status}
+      </Badge>
+      {mitigated && (
+        <span title={t("Passed because a policy or application defense blocked an attempt")} className="text-[11px] text-tertiary">
+          ★
+        </span>
+      )}
+    </span>
+  );
 };
 
 const SEV_CLASS: Record<Severity, string> = {
+  critical: "bg-error",
+  high: "bg-error/70",
+  medium: "bg-tertiary",
+  low: "bg-info",
+  info: "bg-dim",
+};
+const SEV_TEXT: Record<Severity, string> = {
   critical: "text-error",
-  high: "text-error/85",
+  high: "text-error",
   medium: "text-tertiary-text",
   low: "text-neutral",
   info: "text-neutral",
 };
+/** Severity: a small square marker and the level name. */
 export const Severity_ = ({ severity }: { severity: Severity }) => (
-  <span className={cn("text-[11px] font-extrabold uppercase tracking-widest", SEV_CLASS[severity])}>{severity}</span>
+  <span className={cn("inline-flex items-center gap-1.5 text-xs capitalize", SEV_TEXT[severity])}>
+    <span className={cn("size-2 shrink-0 rounded-[1px]", SEV_CLASS[severity])} aria-hidden />
+    {severity}
+  </span>
 );
 
 export function CategoryName({ id }: { id: string }) {
@@ -46,130 +59,118 @@ export function CategoryName({ id }: { id: string }) {
 export function Loading({ label = "Loading" }: { label?: string }) {
   const { t } = useI18n();
   return (
-    <div className="flex items-center gap-2 py-10 text-neutral">
-      <Loader2 className="h-4 w-4 animate-spin" /> {t(label)}…
+    <div className="flex items-center gap-2 py-6 text-xs text-neutral">
+      <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t(label)}…
     </div>
   );
 }
 
 export const ErrorNote = ({ message }: { message: string }) => (
-  <div role="alert" className="flex items-start gap-2 rounded-xl bg-error/10 px-4 py-3 text-sm font-medium text-error">
-    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+  <div role="alert" className="flex items-start gap-2 rounded border border-error/40 bg-error/10 px-3 py-2 text-xs text-error">
+    <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" />
     <span className="break-words">{message}</span>
   </div>
 );
 
 export const Empty = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-xl bg-surface-low px-6 py-10 text-center text-neutral">{children}</div>
+  <div className="rounded border border-dashed border-line px-4 py-6 text-center text-xs text-neutral">{children}</div>
 );
 
-/** Editorial header: status pill, large light headline, lead paragraph, actions. */
+/** Page title row: title, optional status tag, one line of context and the page actions. */
 export const PageHeader = ({ title, subtitle, actions, badge, badgeWarn }: { title: string; subtitle?: string; actions?: React.ReactNode; badge?: string; badgeWarn?: boolean }) => (
-  <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-    <div className="max-w-2xl">
-      {badge && <span className={cn("mb-3 inline-block rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest", badgeWarn ? "bg-tertiary text-on-tertiary" : "bg-pill text-on-pill")}>{badge}</span>}
-      <h1 className="font-headline text-[40px] font-semibold leading-none tracking-tighter text-ink md:text-5xl">{title}</h1>
-      {subtitle && <p className="mt-4 text-[16px] font-light leading-relaxed text-neutral">{subtitle}</p>}
+  <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-line pb-3">
+    <div className="min-w-0 max-w-3xl">
+      <div className="flex items-center gap-2">
+        <h1 className="text-[17px] font-semibold leading-7 text-ink">{title}</h1>
+        {badge && <Badge tone={badgeWarn ? "warn" : "neutral"}>{badge}</Badge>}
+      </div>
+      {subtitle && <p className="text-[12.5px] leading-snug text-neutral">{subtitle}</p>}
     </div>
-    <div className="flex items-center gap-2">{actions}</div>
+    {actions && <div className="flex items-center gap-1.5">{actions}</div>}
   </div>
 );
 
+/** A row of key figures separated by hairlines. */
+export const StatStrip = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={cn("grid grid-flow-col auto-cols-fr divide-x divide-line rounded border border-line bg-panel", className)}>{children}</div>
+);
+
 export const Stat = ({ label, value, hint, tone }: { label: string; value: React.ReactNode; hint?: string; tone?: "bad" | "ok" | "amber" }) => (
-  <div className="rounded-xl bg-surface-low px-5 py-4">
-    <div className="text-[11px] font-bold uppercase tracking-widest text-neutral">{label}</div>
+  <div className="min-w-0 px-3 py-2">
+    <div className="truncate text-xs text-neutral">{label}</div>
     <div
       className={cn(
-        "mt-1.5 font-headline text-3xl font-semibold tabular-nums tracking-tight",
+        "mono text-[17px] font-medium leading-6 tabular-nums",
         tone === "bad" && "text-error",
         tone === "ok" && "text-secondary",
-        tone === "amber" && "text-tertiary",
+        tone === "amber" && "text-tertiary-text",
       )}
     >
       {value}
     </div>
-    {hint && <div className="mt-0.5 text-xs text-neutral">{hint}</div>}
+    {hint && <div className="truncate text-[11px] text-dim">{hint}</div>}
   </div>
 );
 
 export const Chip = ({ children }: { children: React.ReactNode }) => (
-  <span className="rounded-md bg-surface px-1.5 py-0.5 text-[11px] font-semibold text-neutral">{children}</span>
+  <span className="inline-flex h-[18px] items-center rounded-[3px] border border-line bg-surface px-1.5 text-[11px] text-neutral">{children}</span>
 );
 
 export function Json({ value, className }: { value: unknown; className?: string }) {
   return (
-    <pre className={cn("mono max-h-64 overflow-auto rounded-lg bg-surface-low p-3 text-[12px] leading-relaxed break-words whitespace-pre-wrap text-ink/85", className)}>
+    <pre className={cn("mono max-h-64 overflow-auto rounded border border-line-soft bg-surface-low p-2.5 text-[11.5px] leading-relaxed break-words whitespace-pre-wrap text-ink/90", className)}>
       {typeof value === "string" ? value : JSON.stringify(value, null, 2)}
     </pre>
   );
 }
 
-/** Thin tonal progress bars: one row per category. */
+export const scoreColor = (score: number) => (score >= 90 ? "bg-secondary" : score >= 60 ? "bg-tertiary" : "bg-error");
+export const scoreText = (score: number) => (score >= 90 ? "text-secondary" : score >= 60 ? "text-tertiary-text" : "text-error");
+
+/** Thin horizontal score bar with the number on the right. */
+export function ScoreBar({ score, className }: { score: number; className?: string }) {
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      <div className="h-1.5 flex-1 overflow-hidden bg-surface-high" role="img" aria-label={`score ${score}`}>
+        <div className={cn("h-full", scoreColor(score))} style={{ width: `${Math.max(2, score)}%` }} />
+      </div>
+      <span className={cn("mono w-9 text-right text-xs tabular-nums", scoreText(score))}>{score}</span>
+    </div>
+  );
+}
+
+/** One row per category, weakest first. */
 export function CategoryBars({ data }: { data: Record<string, { score: number; fail: number; suspicious: number; inconclusive: number }> }) {
-  const rows = Object.entries(data).sort((a, b) => a[1].score - b[1].score);
-  return (
-    <div className="space-y-3">
-      {rows.map(([cat, v]) => {
-        const color = v.score >= 90 ? "bg-secondary" : v.score >= 60 ? "bg-tertiary" : "bg-error";
-        return (
-          <div key={cat} className="grid grid-cols-[170px_1fr_44px] items-center gap-3 text-[13px]">
-            <span className="truncate font-medium text-neutral" title={cat}>
-              <CategoryName id={cat} />
-            </span>
-            <div className="h-1.5 overflow-hidden rounded-full bg-surface" role="img" aria-label={`${cat} score ${v.score}`}>
-              <div className={cn("h-full rounded-full", color)} style={{ width: `${Math.max(2, v.score)}%` }} />
-            </div>
-            <span className="text-right font-headline font-bold tabular-nums">{v.score}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function arc(r: number, pct: number) {
-  const c = 2 * Math.PI * r;
-  return { strokeDasharray: c, strokeDashoffset: c * (1 - Math.max(0, Math.min(100, pct)) / 100) };
-}
-
-/** The "luminous" dial: outer ring = resilience score, inner ring = conclusive coverage. */
-export function LuminousDial({ score, coverage, caption, sub, size = 300 }: { score: number; coverage: number; caption: string; sub?: React.ReactNode; size?: number }) {
-  const ring = score >= 90 ? "stroke-secondary" : score >= 60 ? "stroke-tertiary" : "stroke-error";
-  return (
-    <div className="relative" style={{ width: size, height: size }} role="img" aria-label={`Resilience score ${score} of 100, coverage ${Math.round(coverage)} percent`}>
-      <div className="absolute inset-0 rounded-full bg-secondary/10 blur-3xl" aria-hidden />
-      <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90">
-        <circle cx="50" cy="50" r="45" fill="none" className="stroke-surface" strokeWidth="6" />
-        <circle cx="50" cy="50" r="45" fill="none" className={ring} strokeWidth="6" strokeLinecap="round" {...arc(45, score)} />
-      </svg>
-      <svg viewBox="0 0 100 100" className="absolute left-[12.5%] top-[12.5%] h-3/4 w-3/4 -rotate-90">
-        <circle cx="50" cy="50" r="45" fill="none" stroke="var(--c-surface-high)" strokeWidth="8" />
-        <circle cx="50" cy="50" r="45" fill="none" className="stroke-primary" strokeWidth="8" strokeLinecap="round" {...arc(45, coverage)} />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <div className="font-headline font-bold leading-none tracking-tighter tabular-nums" style={{ fontSize: size * 0.2 }}>
-          {Math.round(score)}
-        </div>
-        <div className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-neutral">{caption}</div>
-        {sub && <div className="mt-3 flex items-center gap-1.5 font-headline text-lg font-semibold text-ink">{sub}</div>}
-      </div>
-    </div>
-  );
-}
-
-export function ScoreRing({ value, size = 120 }: { value: number; size?: number }) {
   const { t } = useI18n();
-  const color = value >= 90 ? "stroke-secondary" : value >= 60 ? "stroke-tertiary" : "stroke-error";
+  const rows = Object.entries(data).sort((a, b) => a[1].score - b[1].score);
+  const th = "border-b border-line px-3 py-1.5 text-left text-xs font-medium text-neutral";
   return (
-    <div className="relative" style={{ width: size, height: size }} role="img" aria-label={`Resilience score ${value} of 100`}>
-      <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-        <circle cx="50" cy="50" r="42" fill="none" className="stroke-surface" strokeWidth="9" />
-        <circle cx="50" cy="50" r="42" fill="none" className={color} strokeWidth="9" strokeLinecap="round" {...arc(42, value)} />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-headline text-3xl font-bold tabular-nums tracking-tighter">{Math.round(value)}</span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-neutral">{t("resilience")}</span>
-      </div>
-    </div>
+    <table className="w-full text-[12.5px]">
+      <thead>
+        <tr>
+          <th className={th}>{t("Category")}</th>
+          <th className={cn(th, "w-14 text-right")}>{t("Failed")}</th>
+          <th className={cn(th, "w-[42%]")}>{t("Score")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(([cat, v]) => (
+          <tr key={cat} className="border-b border-line-soft last:border-b-0">
+            <td className="truncate px-3 py-1" title={cat}>
+              <CategoryName id={cat} />
+            </td>
+            <td className={cn("mono px-3 py-1 text-right text-xs", v.fail ? "text-error" : "text-dim")}>{v.fail}</td>
+            <td className="px-3 py-1">
+              <ScoreBar score={v.score} />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
+
+/** Severity as a marker only, for dense lists. */
+export const SevDot = ({ severity }: { severity: Severity }) => (
+  <span title={severity} aria-label={severity} className={cn("size-2 shrink-0 rounded-[1px]", SEV_CLASS[severity])} />
+);

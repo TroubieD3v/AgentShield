@@ -60,8 +60,8 @@ export function RunForm({
   }
 
   return (
-    <div className="space-y-4" data-testid="run-form">
-      <div className={cn("grid gap-4", compact ? "grid-cols-1" : "md:grid-cols-2")}>
+    <div className="space-y-3" data-testid="run-form">
+      <div className={cn("grid gap-3", compact ? "grid-cols-1" : "md:grid-cols-2")}>
         <div>
           <Label htmlFor="rf-target">{t("Target")}</Label>
           <Select id="rf-target" value={cfg.target} onChange={(e) => set({ target: e.target.value })}>
@@ -153,7 +153,7 @@ export function RunForm({
       </div>
       <div>
         <Label>{t("Categories")} {selected.length === 0 && <span className="normal-case text-muted">{t("(all)")}</span>}</Label>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1">
           {cats.map((c) => {
             const on = selected.includes(c);
             return (
@@ -163,8 +163,8 @@ export function RunForm({
                 aria-pressed={on}
                 onClick={() => set({ categories: on ? selected.filter((x) => x !== c) : [...selected, c] })}
                 className={cn(
-                  "cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors",
-                  on ? "border-primary bg-primary text-on-primary" : "border-line text-neutral hover:text-ink",
+                  "h-6 cursor-pointer rounded-[3px] border px-2 text-xs transition-colors",
+                  on ? "border-accent/60 bg-sel text-ink" : "border-line bg-surface-low text-neutral hover:text-ink",
                 )}
               >
                 <CategoryName id={c} />
@@ -180,7 +180,7 @@ export function RunForm({
         </p>
       ))}
       <Button onClick={start} disabled={busy} data-testid="start-run">
-        <Play className="h-4 w-4" /> {busy ? t("Starting…") : t("Start run")}
+        <Play className="h-3.5 w-3.5" /> {busy ? t("Starting…") : t("Start run")}
       </Button>
     </div>
   );

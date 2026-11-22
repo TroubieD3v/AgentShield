@@ -83,16 +83,16 @@ export default function Policies() {
         badge={t("Monitor / Enforce")}
         subtitle={t("Deterministic rules plus JSON Schema decide whether a tool call may run. Monitor records violations; Enforce stops them before execution.")}
       />
-      <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_380px]">
         <Card>
           <CardHeader>
             <div>
               <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-ok" /> {t("Policy sets")}
+                <ShieldCheck className="h-3.5 w-3.5 text-neutral" /> {t("Policy sets")}
               </CardTitle>
               <CardDescription>{p?.description}</CardDescription>
             </div>
-            <Select aria-label={t("Policy")} value={sel} onChange={(e) => setSel(e.target.value)} className="w-44">
+            <Select aria-label={t("Policy")} value={sel} onChange={(e) => setSel(e.target.value)} className="mono w-44">
               {policies.data!.map((x) => (
                 <option key={x.id} value={x.id}>
                   {x.id}
@@ -101,13 +101,13 @@ export default function Policies() {
             </Select>
           </CardHeader>
           <CardContent>
-            <div className="mb-3 flex flex-wrap gap-1.5 text-xs">
+            <div className="mb-2 flex flex-wrap gap-1 text-xs">
               <Chip>{t("trusted domains:")} {p?.trusted_domains.join(", ")}</Chip>
               {p?.allowed_fetch_domains.length ? <Chip>{t("fetch allowlist:")} {p.allowed_fetch_domains.length}</Chip> : null}
             </div>
             <table className="w-full text-[12.5px]" data-testid="rules">
               <thead>
-                <tr className="text-left text-xs uppercase tracking-wide text-muted">
+                <tr className="text-left text-xs text-muted">
                   <th className="pb-2 font-medium">{t("Rule")}</th>
                   <th className="pb-2 font-medium">{t("Tools")}</th>
                   <th className="pb-2 font-medium">{t("Severity")}</th>
@@ -117,16 +117,16 @@ export default function Policies() {
               <tbody>
                 {p?.rules.map((r) => (
                   <tr key={r.id} className="border-t border-line align-top">
-                    <td className="py-2 pr-3">
-                      <div className="mono text-[12px] font-semibold text-ink">{r.id}</div>
+                    <td className="py-1.5 pr-3">
+                      <div className="mono text-[12px] text-ink">{r.id}</div>
                       <div className="text-muted">{r.description}</div>
                       <div className="mt-1 flex flex-wrap gap-1">{r.owasp.map((o) => <Chip key={o}>{o}</Chip>)}</div>
                     </td>
-                    <td className="py-2 pr-3 text-muted">{r.tools.join(", ")}</td>
-                    <td className="py-2 pr-3">
+                    <td className="mono py-1.5 pr-3 text-[11.5px] text-muted">{r.tools.join(", ")}</td>
+                    <td className="py-1.5 pr-3">
                       <Severity_ severity={r.severity} />
                     </td>
-                    <td className="py-2 text-muted">{r.effect}</td>
+                    <td className="mono py-1.5 text-[11.5px] text-muted">{r.effect}</td>
                   </tr>
                 ))}
               </tbody>
@@ -134,25 +134,25 @@ export default function Policies() {
           </CardContent>
         </Card>
 
-        <div className="rounded-2xl bg-panel p-6 shadow-editorial" data-testid="policy-demo">
-          <h2 className="mb-4 text-[15px] font-semibold">{t("Policy Engine demo")}</h2>
+        <Card className="h-fit overflow-hidden" data-testid="policy-demo">
+          <CardHeader>
+            <CardTitle>{t("Policy Engine demo")}</CardTitle>
           <Segmented
-            ariaLabel={t("Policy mode")}
-            value={mode}
-            onChange={setMode}
-            options={[
-              { value: "monitor", label: "Monitor" },
-              { value: "enforce", label: "Enforce" },
-            ]}
-          />
-          <div className="mt-4">
-            {demoErr ? <ErrorNote message={demoErr} /> : <PolicyDecisionCard result={demo} />}
-          </div>
-          <p className="mt-3 text-xs text-muted">{t("Interactive illustration: both modes run the sandbox agent with mock tools. No emails are sent.")}</p>
-        </div>
+              ariaLabel={t("Policy mode")}
+              value={mode}
+              onChange={setMode}
+              options={[
+                { value: "monitor", label: "Monitor" },
+                { value: "enforce", label: "Enforce" },
+              ]}
+            />
+          </CardHeader>
+          {demoErr ? <div className="p-3"><ErrorNote message={demoErr} /></div> : <PolicyDecisionCard result={demo} bare />}
+          <p className="border-t border-line px-3 py-2 text-[11px] text-dim">{t("Interactive illustration: both modes run the sandbox agent with mock tools. No emails are sent.")}</p>
+        </Card>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-3 grid gap-3 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <div>
@@ -190,7 +190,7 @@ export default function Policies() {
                 ))}
               </Select>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1.5">
               {["html", "json", "sarif", "md"].map((f) => (
                 <Button key={f} variant="secondary" size="sm" disabled={!runId} onClick={() => downloadReport(runId, f)}>
                   <Download className="h-3.5 w-3.5" /> {f.toUpperCase()}
@@ -205,7 +205,7 @@ export default function Policies() {
         </Card>
       </div>
 
-      <Card className="mt-4">
+      <Card className="mt-3">
         <CardHeader>
           <div>
             <CardTitle>{t("Real Enforce for your own agent")}</CardTitle>

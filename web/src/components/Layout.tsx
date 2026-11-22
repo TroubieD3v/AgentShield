@@ -1,38 +1,32 @@
 import { useI18n } from "@/lib/i18n";
-import { NavLink, Outlet } from "react-router-dom";
-import { BookText, Crosshair, FlaskConical, Gauge, Moon, Network, PlayCircle, ScrollText, ShieldAlert, Sun, Target } from "lucide-react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { BookText, ChevronRight, Crosshair, FlaskConical, Gauge, Moon, Network, PlayCircle, ScrollText, ShieldAlert, Sun, Target } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { getToken, setToken } from "@/lib/api";
 import { useTheme } from "@/lib/theme";
 
 const NAV = [
-  { to: "/", label: "Dashboard", short: "Dashboard", icon: Gauge, end: true },
-  { to: "/targets", label: "Targets & Models", short: "Targets", icon: Target },
-  { to: "/scenarios", label: "Scenario Library", short: "Scenarios", icon: BookText },
-  { to: "/playground", label: "Attack Playground", short: "Playground", icon: Crosshair },
-  { to: "/runs", label: "Test Runs", short: "Runs", icon: PlayCircle },
-  { to: "/traces", label: "Trace Explorer", short: "Traces", icon: Network },
-  { to: "/findings", label: "Findings", short: "Findings", icon: ShieldAlert },
-  { to: "/policies", label: "Policies & Reports", short: "Policies", icon: ScrollText },
+  { to: "/", label: "Dashboard", short: "Dashboard", icon: Gauge, end: true, group: "Overview" },
+  { to: "/targets", label: "Targets & Models", short: "Targets", icon: Target, group: "Setup" },
+  { to: "/scenarios", label: "Scenario Library", short: "Scenarios", icon: BookText, group: "Setup" },
+  { to: "/policies", label: "Policies & Reports", short: "Policies", icon: ScrollText, group: "Setup" },
+  { to: "/playground", label: "Attack Playground", short: "Playground", icon: Crosshair, group: "Testing" },
+  { to: "/runs", label: "Test Runs", short: "Runs", icon: PlayCircle, group: "Testing" },
+  { to: "/traces", label: "Trace Explorer", short: "Traces", icon: Network, group: "Analysis" },
+  { to: "/findings", label: "Findings", short: "Findings", icon: ShieldAlert, group: "Analysis" },
 ];
+const GROUPS = ["Overview", "Setup", "Testing", "Analysis"];
 
 export function Logo({ compact }: { compact?: boolean }) {
   const { t } = useI18n();
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#121212]">
-        <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden>
-          <path d="M16 4 6 8v7.400c0 5.600 4 10 10 12.600 6-2.600 10-7 10-12.600V8L16 4Z" fill="none" stroke="#d97706" strokeWidth="2.200" strokeLinejoin="round" />
-          <path d="m11.500 15.500 3.200 3.200 6-6.500" fill="none" stroke="#30e375" strokeWidth="2.200" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-      {!compact && (
-        <div className="leading-tight">
-          <div className="font-headline text-[19px] font-extrabold tracking-tight">{t("AgentShield")}</div>
-          <div className="text-[11px] font-medium text-neutral">{t("AI Security Assessment Console")}</div>
-        </div>
-      )}
+    <div className="flex items-center gap-2">
+      <svg width="18" height="18" viewBox="0 0 32 32" aria-hidden className="shrink-0 text-ink">
+        <path d="M16 3.5 6 7.5v7.400c0 5.600 4 10.200 10 12.800 6-2.600 10-7.200 10-12.800V7.500L16 3.500Z" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+        <path d="M16 9v13" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      </svg>
+      {!compact && <span className="text-[13px] font-semibold">{t("AgentShield")}</span>}
     </div>
   );
 }
@@ -41,10 +35,10 @@ export function Logo({ compact }: { compact?: boolean }) {
 export function Switchers({ className }: { className?: string }) {
   const { lang, setLang, t } = useI18n();
   const { theme, setTheme } = useTheme();
-  const seg = "cursor-pointer rounded-full px-2.5 py-1 text-[11px] font-extrabold tracking-widest transition-all";
+  const seg = "flex h-5 cursor-pointer items-center rounded-[2px] px-1.5 text-[11px] font-medium transition-colors";
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <div role="group" aria-label={t("Language")} className="flex rounded-full bg-surface p-0.5">
+    <div className={cn("flex items-center gap-1.5", className)}>
+      <div role="group" aria-label={t("Language")} className="flex rounded-[3px] border border-line bg-bg p-px">
         {(["en", "ru"] as const).map((l) => (
           <button
             key={l}
@@ -53,13 +47,13 @@ export function Switchers({ className }: { className?: string }) {
             aria-pressed={lang === l}
             title={l === "en" ? "English" : "Русский"}
             data-testid={`lang-${l}`}
-            className={cn(seg, lang === l ? "bg-primary text-on-primary" : "text-neutral hover:text-ink")}
+            className={cn(seg, lang === l ? "bg-surface-highest text-ink" : "text-neutral hover:text-ink")}
           >
             {l.toUpperCase()}
           </button>
         ))}
       </div>
-      <div role="group" aria-label={t("Theme")} className="flex rounded-full bg-surface p-0.5">
+      <div role="group" aria-label={t("Theme")} className="flex rounded-[3px] border border-line bg-bg p-px">
         {(
           [
             ["dark", Moon, "Dark"],
@@ -74,12 +68,32 @@ export function Switchers({ className }: { className?: string }) {
             aria-label={t(label)}
             title={t(label)}
             data-testid={`theme-${k}`}
-            className={cn("flex cursor-pointer items-center rounded-full px-2.5 py-1 transition-all", theme === k ? "bg-primary text-on-primary" : "text-neutral hover:text-ink")}
+            className={cn(seg, theme === k ? "bg-surface-highest text-ink" : "text-neutral hover:text-ink")}
           >
-            <Icon className="h-3.5 w-3.5" aria-hidden />
+            <Icon className="h-3 w-3" aria-hidden />
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function Crumbs() {
+  const { t } = useI18n();
+  const { pathname } = useLocation();
+  const item = NAV.find((n) => (n.end ? pathname === n.to : pathname.startsWith(n.to)));
+  const rest = pathname.split("/").filter(Boolean).slice(1);
+  return (
+    <div className="flex min-w-0 items-center gap-1 text-[12.5px] text-neutral">
+      <span>{t("local sandbox")}</span>
+      <ChevronRight className="h-3 w-3 shrink-0 text-dim" aria-hidden />
+      <span className={cn(rest.length ? "" : "text-ink")}>{t(item?.label ?? "Page")}</span>
+      {rest.map((r) => (
+        <span key={r} className="flex min-w-0 items-center gap-1">
+          <ChevronRight className="h-3 w-3 shrink-0 text-dim" aria-hidden />
+          <span className="mono truncate text-[12px] text-ink">{decodeURIComponent(r)}</span>
+        </span>
+      ))}
     </div>
   );
 }
@@ -88,34 +102,39 @@ export function Layout({ version }: { version?: string }) {
   const { t } = useI18n();
   const [token, setTok] = useState(getToken());
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[250px_1fr]">
-      {/* sidebar (desktop) */}
-      <aside className="glass sticky top-0 hidden h-screen flex-col px-4 py-6 lg:flex">
-        <div className="px-2 pb-8">
+    <div className="min-h-screen lg:grid lg:grid-cols-[212px_1fr]">
+      <div className="hidden border-r border-line bg-chrome lg:block">
+      <aside className="sticky top-0 flex h-screen flex-col">
+        <div className="flex h-10 items-center border-b border-line px-3">
           <Logo />
+          <span className="mono ml-auto text-[11px] text-dim">v{version ?? "…"}</span>
         </div>
-        <nav className="flex flex-1 flex-col gap-1" aria-label={t("Main")}>
-          {NAV.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13.5px] font-semibold transition-all",
-                  isActive ? "bg-primary text-on-primary shadow-lift" : "text-neutral hover:bg-surface hover:text-ink",
-                )
-              }
-            >
-              <Icon className="h-[18px] w-[18px]" aria-hidden />
-              {t(label)}
-            </NavLink>
+        <nav className="flex flex-1 flex-col overflow-y-auto px-2 py-2" aria-label={t("Main")}>
+          {GROUPS.map((g) => (
+            <div key={g} className="mb-2">
+              <div className="px-2 pb-0.5 pt-1.5 text-[11px] font-medium text-dim">{t(g)}</div>
+              {NAV.filter((n) => n.group === g).map(({ to, label, icon: Icon, end }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex h-7 items-center gap-2 rounded-[3px] px-2 text-[12.5px] transition-colors",
+                      isActive ? "bg-surface-high font-medium text-ink" : "text-neutral hover:bg-surface hover:text-ink",
+                    )
+                  }
+                >
+                  <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  {t(label)}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
-        <div className="space-y-2.5 px-2 pt-4 text-[11px] text-neutral">
-          <Switchers />
-          <div className="flex items-start gap-2 rounded-xl bg-surface-low p-3 font-medium leading-snug">
-            <FlaskConical className="mt-0.5 h-3.5 w-3.5 shrink-0 text-tertiary" /> {t("Mock tools only. No real emails or actions leave this machine.")}
+        <div className="space-y-2 border-t border-line p-3 text-[11px] text-neutral">
+          <div className="flex items-start gap-1.5 leading-snug">
+            <FlaskConical className="mt-px h-3 w-3 shrink-0 text-tertiary" /> {t("Mock tools only. No real emails or actions leave this machine.")}
           </div>
           <input
             aria-label={t("API token")}
@@ -126,44 +145,41 @@ export function Layout({ version }: { version?: string }) {
               setTok(e.target.value);
               setToken(e.target.value);
             }}
-            className="h-8 w-full rounded-lg border border-line bg-surface-low px-2.5 text-[11px] focus:border-primary focus:outline-none"
+            className="h-6 w-full rounded-[3px] border border-line bg-bg px-2 text-[11px] placeholder:text-dim focus:border-accent focus:outline-none"
           />
-          <div className="font-semibold">{t("v")}{version ?? "…"}</div>
+          <Switchers />
         </div>
       </aside>
+      </div>
 
       <div className="min-w-0">
-        {/* top app bar (mobile) */}
-        <header className="glass sticky top-0 z-40 flex items-center justify-between px-5 py-3 lg:hidden">
-          <Logo compact />
-          <Switchers />
+        <header className="sticky top-0 z-40 flex h-10 items-center justify-between gap-3 border-b border-line bg-bg px-4 lg:px-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="lg:hidden">
+              <Logo compact />
+            </span>
+            <Crumbs />
+          </div>
+          <Switchers className="lg:hidden" />
         </header>
-        <main className="px-5 pb-28 pt-6 lg:px-10 lg:pb-12 lg:pt-10">
-          <div className="mx-auto max-w-[1180px]">
+        <main className="px-4 pb-24 pt-4 lg:px-5 lg:pb-8">
+          <div className="mx-auto max-w-[1440px]">
             <Outlet />
           </div>
         </main>
       </div>
 
-      {/* bottom navigation (mobile) */}
-      <nav className="glass fixed inset-x-0 bottom-0 z-50 border-t border-line/60 lg:hidden" aria-label={t("Main (mobile)")}>
-        <div className="no-scrollbar flex gap-1 overflow-x-auto px-3 py-2">
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-chrome lg:hidden" aria-label={t("Main (mobile)")}>
+        <div className="no-scrollbar flex gap-0.5 overflow-x-auto px-2 py-1">
           {NAV.map(({ to, short, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
-              className={({ isActive }) =>
-                cn("flex min-w-[68px] flex-col items-center gap-1 rounded-xl px-2 py-1.5", isActive ? "text-primary" : "text-neutral")
-              }
+              className={({ isActive }) => cn("flex min-w-[64px] flex-col items-center gap-0.5 rounded-[3px] px-2 py-1", isActive ? "bg-surface-high text-ink" : "text-neutral")}
             >
-              {({ isActive }) => (
-                <>
-                  <Icon className="h-5 w-5" strokeWidth={isActive ? 2.6 : 2} aria-hidden />
-                  <span className={cn("text-[10px] uppercase tracking-widest", isActive ? "font-extrabold" : "font-medium")}>{t(short)}</span>
-                  {isActive && <span className="h-1 w-1 rounded-full bg-primary" />}
-                </>
-              )}
+              <Icon className="h-4 w-4" aria-hidden />
+              <span className="text-[10.5px]">{t(short)}</span>
             </NavLink>
           ))}
         </div>
