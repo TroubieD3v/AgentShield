@@ -1,5 +1,16 @@
 # Changelog
 
+
+## Unreleased
+
+### Changed
+
+- Interface redesign. The Trace Explorer shows the agent run as a step tree with a timeline bar and duration per
+  step; tool results and policy decisions nest under their tool call, and the selected step opens in a side panel
+  with Input, Output, Policy and Attributes tabs. The Dashboard, run and runs pages use dense tables and a figure
+  strip instead of dials and tiles. Grouped sidebar with breadcrumbs, graphite dark theme and a soft light theme,
+  IBM Plex Sans and Mono. The HTML report follows the same design; screenshots and the demo GIF are regenerated.
+
 ## 0.1.1 - 2026-10-25
 
 ### Fixed

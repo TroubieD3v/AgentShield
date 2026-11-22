@@ -5,7 +5,7 @@ import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input, Label, Segmented, Select } from "@/components/ui/form";
-import { CategoryName, Chip, Empty, ErrorNote, Json, Loading, PageHeader, Severity_ } from "@/components/common";
+import { CategoryName, Chip, Empty, ErrorNote, Json, Loading, PageHeader, SevDot } from "@/components/common";
 import { api } from "@/lib/api";
 import { cn, useAsync } from "@/lib/utils";
 import type { ScenarioDef } from "@/lib/types";
@@ -53,7 +53,7 @@ export default function Scenarios() {
         title={t("Scenario Library")}
         subtitle={t("{n} reproducible scenarios, each with state, steps and independent assertions. Parameterized scenarios expand into variants.", { n: list.data!.length })}
       />
-      <div className="mb-4 grid gap-3 md:grid-cols-[1fr_220px_200px]">
+      <div className="mb-3 grid gap-2 md:grid-cols-[1fr_220px_200px]">
         <div>
           <Label htmlFor="sc-q">{t("Search")}</Label>
           <Input id="sc-q" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("id, name or description")} />
@@ -79,24 +79,24 @@ export default function Scenarios() {
           </Select>
         </div>
       </div>
-      <div className="grid gap-4 lg:grid-cols-[1fr_460px]">
-        <div className="space-y-2" data-testid="scenario-list">
-          {rows.length === 0 && <Empty>{t("No scenarios match.")}</Empty>}
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_480px]">
+        <div className="h-fit divide-y divide-line-soft overflow-hidden rounded border border-line bg-panel" data-testid="scenario-list">
+          {rows.length === 0 && <p className="px-3 py-6 text-center text-xs text-neutral">{t("No scenarios match.")}</p>}
           {rows.map((s) => (
             <button
               key={s.id}
               onClick={() => setSel(s)}
               className={cn(
-                "block w-full cursor-pointer rounded-xl border-2 bg-panel px-4 py-3.5 text-left shadow-editorial transition-all hover:shadow-lift",
-                sel?.id === s.id ? "border-primary" : "border-transparent",
+                "block w-full cursor-pointer px-3 py-1.5 text-left transition-colors",
+                sel?.id === s.id ? "bg-sel" : "hover:bg-surface/60",
               )}
             >
-              <div className="flex items-center gap-2">
-                <Severity_ severity={s.severity} />
-                <span className="text-[14px] font-medium">{s.name}</span>
+              <div className="flex min-w-0 items-center gap-2">
+                <SevDot severity={s.severity} />
+                <span className="truncate text-[12.5px]">{s.name}</span>
                 {s.variants.length > 0 && <Chip>{s.variants.length} {t("variants")}</Chip>}
               </div>
-              <div className="mt-1 flex flex-wrap gap-1.5 text-xs text-muted">
+              <div className="mt-0.5 flex flex-wrap gap-1.5 pl-[18px] text-[11.5px] text-muted">
                 <span className="mono">{s.id}</span>
                 <span>· <CategoryName id={s.category} /></span>
                 <span>· {s.agent}</span>
@@ -104,18 +104,18 @@ export default function Scenarios() {
             </button>
           ))}
         </div>
-        <div className="lg:sticky lg:top-6 lg:self-start">
+        <div className="lg:sticky lg:top-14 lg:self-start">
           {!sel ? (
             <Empty>{t("Select a scenario to see its steps, assertions and remediation.")}</Empty>
           ) : (
             <Card data-testid="scenario-detail">
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div>
                   <div className="mono text-xs text-muted">
                     {sel.id} {t("· v")}{sel.version} · {sel.source}
                   </div>
-                  <h2 className="mt-1 text-lg font-semibold">{sel.name}</h2>
-                  {sel.description && <p className="mt-1 text-[13.5px] text-muted">{sel.description}</p>}
+                  <h2 className="mt-0.5 text-[14px] font-semibold">{sel.name}</h2>
+                  {sel.description && <p className="mt-1 text-[12.5px] text-muted">{sel.description}</p>}
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {sel.owasp.map((o) => (
@@ -146,8 +146,8 @@ export default function Scenarios() {
                     <b className="text-tertiary-text">{t("Remediation:")}</b> {sel.remediation}
                   </p>
                 )}
-                <div className="space-y-3 border-t border-line pt-4">
-                  <div className="flex flex-wrap items-center gap-3">
+                <div className="space-y-2 border-t border-line pt-3">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Segmented
                       ariaLabel={t("Agent variant")}
                       value={variant}
@@ -169,7 +169,7 @@ export default function Scenarios() {
                     />
                   </div>
                   <Button onClick={() => runOne(sel)} data-testid="run-scenario">
-                    <Play className="h-4 w-4" /> {t("Run this scenario")}
+                    <Play className="h-3.5 w-3.5" /> {t("Run this scenario")}
                   </Button>
                   {err && <ErrorNote message={err} />}
                 </div>

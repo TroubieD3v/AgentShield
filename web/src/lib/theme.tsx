@@ -32,6 +32,6 @@ export const useTheme = () => useContext(Ctx);
 export function useChartColors() {
   const { theme } = useTheme();
   return theme === "dark"
-    ? { secondary: "#31d57b", tertiary: "#f5a03a", neutral: "#8a9ab3", grid: "#222d40", panel: "#111721", ink: "#e8eef8", cursor: "#151c27", shadow: "rgba(0,0,0,.6)" }
-    : { secondary: "#008542", tertiary: "#d97706", neutral: "#64748b", grid: "#dce9ff", panel: "#ffffff", ink: "#0b1c30", cursor: "#eff4ff", shadow: "rgba(11,28,48,.25)" };
+    ? { secondary: "#94b08e", tertiary: "#d0a866", accent: "#8fb4d8", neutral: "#8d939a", grid: "#2f333a", panel: "#1f2226", ink: "#d5d7da", cursor: "#24272c" }
+    : { secondary: "#3b6a4a", tertiary: "#87601a", accent: "#3a6693", neutral: "#5b626a", grid: "#cdd3d9", panel: "#f8f9fa", ink: "#1e2227", cursor: "#e6e9ec" };
 }

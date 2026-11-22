@@ -168,12 +168,12 @@ test("theme: dark by default, light on request, choice survives a reload", async
   await page.locator("aside").getByTestId("theme-light").click();
   await expect(html).not.toHaveClass(/dark/);
   const bodyBg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  await expect.poll(bodyBg).toBe("rgb(248, 249, 255)");
+  await expect.poll(bodyBg).toBe("rgb(238, 240, 242)");
   await page.reload();
   await expect(html).not.toHaveClass(/dark/);
   await page.locator("aside").getByTestId("theme-dark").click();
   await expect(html).toHaveClass(/dark/);
-  await expect.poll(bodyBg).toBe("rgb(9, 13, 19)");
+  await expect.poll(bodyBg).toBe("rgb(25, 27, 30)");
 });
 
 test("language: English by default, Russian on request, persisted", async ({ page }) => {

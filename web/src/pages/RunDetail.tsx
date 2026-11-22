@@ -1,12 +1,12 @@
 import { useI18n } from "@/lib/i18n";
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Download, Flag, Network } from "lucide-react";
+import { ChevronRight, Download, Flag, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/form";
-import { CategoryBars, Chip, Empty, ErrorNote, Loading, PageHeader, ScoreRing, Severity_, Stat, StatusBadge } from "@/components/common";
+import { CategoryBars, Chip, ErrorNote, Loading, PageHeader, Severity_, Stat, StatStrip, StatusBadge } from "@/components/common";
 import { ComparisonView } from "@/pages/Runs";
 import { api, downloadReport } from "@/lib/api";
 import { cn, fmtMs, fmtTime, primaryRepeat, titleCase, useAsync, usePolling } from "@/lib/utils";
@@ -60,66 +60,54 @@ export default function RunDetail() {
           <>
             {["html", "json", "sarif", "md"].map((f) => (
               <Button key={f} size="sm" variant="secondary" onClick={() => downloadReport(r.id, f)} disabled={running} aria-label={`Download ${f} report`}>
-                <Download className="h-3.5 w-3.5" /> {f.toUpperCase()}
+                <Download className="h-3 w-3" /> {f.toUpperCase()}
               </Button>
             ))}
           </>
         }
       />
       {running && (
-        <Card className="mb-4">
-          <CardContent className="flex items-center gap-4 py-3">
-            <Badge tone="amber">{r.status}</Badge>
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-line">
-              <div className="h-full bg-amber transition-all" style={{ width: `${(100 * r.progress.done) / Math.max(1, r.progress.total)}%` }} />
-            </div>
-            <span className="text-sm tabular-nums text-muted">
-              {r.progress.done}/{r.progress.total}
-            </span>
-          </CardContent>
-        </Card>
+        <div className="mb-3 flex items-center gap-3 rounded border border-line bg-panel px-3 py-2">
+          <Badge tone="amber">{r.status}</Badge>
+          <div className="h-1.5 flex-1 overflow-hidden bg-surface-high">
+            <div className="h-full bg-tertiary transition-all" style={{ width: `${(100 * r.progress.done) / Math.max(1, r.progress.total)}%` }} />
+          </div>
+          <span className="mono text-xs tabular-nums text-muted">
+            {r.progress.done}/{r.progress.total}
+          </span>
+        </div>
       )}
       {r.error && <ErrorNote message={r.error} />}
 
-      <div className="grid gap-4 lg:grid-cols-[auto_1fr]">
-        <Card>
-          <CardContent className="flex items-center justify-center py-6">
-            <ScoreRing value={s.score} size={150} />
-          </CardContent>
-        </Card>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <Stat label={t("Passed")} value={s.counts.PASS} tone="ok" hint={s.mitigated ? t("{n} only mitigated ★", { n: s.mitigated }) : undefined} />
-          <Stat label={t("Failed")} value={s.counts.FAIL} tone={s.counts.FAIL ? "bad" : undefined} />
-          <Stat label={t("Suspicious")} value={s.counts.SUSPICIOUS} tone={s.counts.SUSPICIOUS ? "amber" : undefined} hint={t("needs review")} />
-          <Stat label={t("Inconclusive")} value={s.counts.INCONCLUSIVE + s.counts.ERROR} hint={t("no telemetry / errors")} />
-          <Stat label={t("Violations")} value={`${s.policy_violations_effective}/${s.policy_violations_attempted}`} hint={t("effective / attempted")} />
-          <Stat label={t("Coverage")} value={`${Math.round(s.coverage * 100)}%`} />
-          <Stat label={t("Tokens")} value={s.tokens.toLocaleString()} hint={s.cost_usd != null ? `$${s.cost_usd}` : t("estimated, no price set")} />
-          <Stat label={t("Cases")} value={s.total} />
-        </div>
-      </div>
+      <StatStrip className="overflow-x-auto">
+        <Stat label={t("Score")} value={s.score} tone={s.score >= 90 ? "ok" : s.score >= 60 ? "amber" : "bad"} hint={t("resilience")} />
+        <Stat label={t("Passed")} value={s.counts.PASS} tone="ok" hint={s.mitigated ? t("{n} only mitigated ★", { n: s.mitigated }) : undefined} />
+        <Stat label={t("Failed")} value={s.counts.FAIL} tone={s.counts.FAIL ? "bad" : undefined} />
+        <Stat label={t("Suspicious")} value={s.counts.SUSPICIOUS} tone={s.counts.SUSPICIOUS ? "amber" : undefined} hint={t("needs review")} />
+        <Stat label={t("Inconclusive")} value={s.counts.INCONCLUSIVE + s.counts.ERROR} hint={t("no telemetry / errors")} />
+        <Stat label={t("Violations")} value={`${s.policy_violations_effective}/${s.policy_violations_attempted}`} hint={t("effective / attempted")} />
+        <Stat label={t("Coverage")} value={`${Math.round(s.coverage * 100)}%`} />
+        <Stat label={t("Tokens")} value={s.tokens.toLocaleString()} hint={s.cost_usd != null ? `$${s.cost_usd}` : t("estimated, no price set")} />
+        <Stat label={t("Cases")} value={s.total} />
+      </StatStrip>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <Card>
           <CardHeader>
             <CardTitle>{t("By category")}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <CategoryBars data={s.by_category} />
-          </CardContent>
+          <CategoryBars data={s.by_category} />
         </Card>
-        <Card>
+        <Card className="h-fit">
           <CardHeader>
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Flag className="h-4 w-4 text-tertiary" /> {t("Baseline regression")}
-              </CardTitle>
-              <CardDescription>{t("Save this run as a baseline, then check later runs against it.")}</CardDescription>
-            </div>
+            <CardTitle className="flex items-center gap-2">
+              <Flag className="h-3.5 w-3.5 text-neutral" /> {t("Baseline regression")}
+            </CardTitle>
+            <CardDescription>{t("Save this run as a baseline, then check later runs against it.")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex gap-2">
-              <Input aria-label={t("Baseline name")} value={baseline} onChange={(e) => setBaseline(e.target.value)} className="max-w-48" />
+            <div className="flex flex-wrap gap-1.5">
+              <Input aria-label={t("Baseline name")} value={baseline} onChange={(e) => setBaseline(e.target.value)} className="mono max-w-40" />
               <Button variant="secondary" onClick={saveBaseline} disabled={running}>
                 {t("Save as baseline")}
               </Button>
@@ -127,88 +115,106 @@ export default function RunDetail() {
                 {t("Check against it")}
               </Button>
             </div>
-            {note && <p className="text-xs font-medium text-tertiary-text">{note}</p>}
+            {note && <p className="text-xs text-tertiary-text">{note}</p>}
             {reg && <ComparisonView c={reg} />}
           </CardContent>
         </Card>
       </div>
 
-      <Card className="mt-4">
+      <Card className="mt-3">
         <CardHeader>
-          <CardTitle>{t("Cases")}</CardTitle>
-          <div className="flex flex-wrap gap-1" role="tablist" aria-label={t("Filter by status")}>
+          <CardTitle>
+            {t("Cases")} <span className="mono ml-1 text-[11px] font-normal text-dim">{cases.length}</span>
+          </CardTitle>
+          <div className="flex flex-wrap gap-0.5 rounded border border-line bg-surface-low p-px" role="tablist" aria-label={t("Filter by status")}>
             {FILTERS.map((f) => (
               <button
                 key={f}
                 role="tab"
                 aria-selected={filter === f}
                 onClick={() => setFilter(f)}
-                className={cn(
-                  "cursor-pointer rounded-full border px-2.5 py-0.5 text-xs font-medium",
-                  filter === f ? "border-primary bg-primary text-on-primary" : "border-line text-neutral hover:text-ink",
-                )}
+                className={cn("h-[22px] cursor-pointer rounded-[2px] px-2 text-xs", filter === f ? "bg-surface-highest text-ink" : "text-neutral hover:text-ink")}
               >
                 {f === "ALL" ? t("All") : t(f.toLowerCase())}
               </button>
             ))}
           </div>
         </CardHeader>
-        <CardContent>
-          {cases.length === 0 ? (
-            <Empty>{t("No cases match.")}</Empty>
-          ) : (
-            <div className="divide-y divide-line" data-testid="cases">
-              {cases.map((c) => (
-                <CaseRow key={c.id} c={c} open={open === c.id} onToggle={() => setOpen(open === c.id ? null : c.id)} />
-              ))}
+        {cases.length === 0 ? (
+          <p className="px-3 py-6 text-center text-xs text-neutral">{t("No cases match.")}</p>
+        ) : (
+          <div data-testid="cases">
+            <div className={`${GRID} border-b border-line py-1.5 text-xs font-medium text-neutral`}>
+              <span>{t("Status")}</span>
+              <span>{t("Case")}</span>
+              <span>{t("Category")}</span>
+              <span>{t("Agent")}</span>
+              <span>{t("Severity")}</span>
             </div>
-          )}
-        </CardContent>
+            {cases.map((c) => (
+              <CaseRow key={c.id} c={c} open={open === c.id} onToggle={() => setOpen(open === c.id ? null : c.id)} />
+            ))}
+          </div>
+        )}
       </Card>
     </div>
   );
 }
 
+const GRID = "grid grid-cols-[78px_minmax(0,1fr)_190px_170px_80px] items-center gap-3 px-3";
+
 function CaseRow({ c, open, onToggle }: { c: CaseResult; open: boolean; onToggle: () => void }) {
   const { t } = useI18n();
   const rep = primaryRepeat(c);
   return (
-    <div className="py-2.5">
-      <button onClick={onToggle} className="grid w-full cursor-pointer grid-cols-[110px_1fr_auto] items-center gap-3 text-left" aria-expanded={open}>
+    <div className="border-b border-line-soft last:border-b-0">
+      <button onClick={onToggle} className={cn(GRID, "w-full cursor-pointer py-1 text-left", open ? "bg-sel" : "hover:bg-surface/60")} aria-expanded={open}>
         <StatusBadge status={c.status} mitigated={c.mitigated} />
-        <div className="min-w-0">
-          <div className="truncate text-[13.5px] font-medium">{c.name}</div>
-          <div className="text-xs text-muted">
-            {titleCase(c.category)} · {c.agent}
-          </div>
-        </div>
+        <span className="flex min-w-0 items-center gap-1.5">
+          <ChevronRight className={cn("h-3 w-3 shrink-0 text-dim transition-transform", open && "rotate-90")} aria-hidden />
+          <span className="truncate text-[12.5px]">{c.name}</span>
+        </span>
+        <span className="truncate text-xs text-neutral">{titleCase(c.category)}</span>
+        <span className="mono truncate text-[11.5px] text-neutral">{c.agent}</span>
         <Severity_ severity={c.severity} />
       </button>
       {open && rep && (
-        <div className="mt-3 space-y-3 rounded-xl bg-surface-low p-4">
-          <div className="flex flex-wrap gap-1.5">
+        <div className="space-y-2.5 border-t border-line-soft bg-surface-low py-2.5 pl-[105px] pr-3">
+          <div className="flex flex-wrap gap-1">
             {c.owasp.map((o) => (
               <Chip key={o}>{o}</Chip>
             ))}
-            <Chip>{t("pass rate")} {Math.round(c.pass_rate * 100)}%</Chip>
-            <Chip>{rep.tool_calls} {t("tool calls")}</Chip>
+            <Chip>
+              {t("pass rate")} {Math.round(c.pass_rate * 100)}%
+            </Chip>
+            <Chip>
+              {rep.tool_calls} {t("tool calls")}
+            </Chip>
             <Chip>{fmtMs(rep.duration_ms)}</Chip>
-            {rep.blocked_attempts > 0 && <Chip>{rep.blocked_attempts} {t("blocked")}</Chip>}
+            {rep.blocked_attempts > 0 && (
+              <Chip>
+                {rep.blocked_attempts} {t("blocked")}
+              </Chip>
+            )}
           </div>
-          <ul className="space-y-2">
-            {rep.assertions.map((a, i) => (
-              <li key={i} className="grid grid-cols-[110px_1fr] gap-3 text-[13px]">
-                <StatusBadge status={a.status} />
-                <div>
-                  <span className="mono text-[12px] font-semibold text-ink">{a.type}</span> <span className="text-xs text-muted">({a.level})</span>
-                  <div className="text-ink/80">{a.message}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <table className="w-full max-w-4xl text-[12.5px]">
+            <tbody>
+              {rep.assertions.map((a, i) => (
+                <tr key={i} className="border-t border-line-soft align-top first:border-t-0">
+                  <td className="w-[100px] py-1 pr-2">
+                    <StatusBadge status={a.status} />
+                  </td>
+                  <td className="w-[190px] py-1 pr-3">
+                    <span className="mono text-[11.5px] text-ink">{a.type}</span> <span className="text-[11px] text-dim">{a.level}</span>
+                  </td>
+                  <td className="py-1 text-neutral">{a.message}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           {c.remediation && c.status !== "PASS" && (
-            <p className="text-[13px]">
-              <b className="text-tertiary-text">{t("Remediation:")}</b> {c.remediation}
+            <p className="max-w-4xl text-[12.5px] text-neutral">
+              <span className="font-medium text-tertiary-text">{t("Remediation:")}</span> {c.remediation}
             </p>
           )}
           {rep.trace_id && (

@@ -25,7 +25,7 @@ export default function Findings() {
         badge={t("Evidence-backed")}
         subtitle={t("FAIL means a confirmed violation backed by observed actions. SUSPICIOUS needs a human look. Judge-only signals never become FAIL on their own.")}
       />
-      <div className="mb-4 grid max-w-xl grid-cols-2 gap-3">
+      <div className="mb-3 grid max-w-xl grid-cols-2 gap-2">
         <div>
           <Label htmlFor="f-run">{t("Run")}</Label>
           <Select id="f-run" value={runId} onChange={(e) => setRunId(e.target.value)}>
@@ -54,17 +54,17 @@ export default function Findings() {
       ) : rows.length === 0 ? (
         <Empty>{t("No findings.")} {f.data?.run_id ? t("This run is clean at the selected severity.") : t("Run an assessment first.")}</Empty>
       ) : (
-        <div className="space-y-3" data-testid="findings">
+        <div className="space-y-2" data-testid="findings">
           {rows.map((x) => (
             <Card key={x.id}>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusBadge status={x.status} />
                   <Severity_ severity={x.severity} />
-                  <h3 className="text-[15px] font-semibold">{x.title}</h3>
+                  <h3 className="text-[13px] font-semibold">{x.title}</h3>
                   <span className="mono ml-auto text-xs text-muted">{x.id}</span>
                 </div>
-                <div className="flex flex-wrap gap-1.5 text-xs">
+                <div className="flex flex-wrap gap-1 text-xs">
                   <Chip>
                     <CategoryName id={x.category} />
                   </Chip>
@@ -76,7 +76,7 @@ export default function Findings() {
                 </div>
                 {x.repeats.length > 1 && (
                   <div className="flex flex-wrap items-center gap-1.5 text-xs text-neutral" data-testid="finding-repeats">
-                    <span className="font-semibold">{t("Repeats:")}</span>
+                    <span className="font-medium">{t("Repeats:")}</span>
                     {x.repeats.map((r) => (
                       <span key={r.index} className="inline-flex items-center gap-1">
                         #{r.index + 1} <StatusBadge status={r.status} />
@@ -85,9 +85,9 @@ export default function Findings() {
                     <span>{t("evidence is from repeat #{n}", { n: x.evidence_repeat + 1 })}</span>
                   </div>
                 )}
-                <p className="text-[13.5px] text-ink/80">{x.description}</p>
+                <p className="text-[12.5px] text-ink/85">{x.description}</p>
                 {x.evidence.length > 0 && (
-                  <ul className="space-y-1 text-[12.5px]">
+                  <ul className="space-y-0.5 rounded border border-line-soft bg-surface-low px-2.5 py-1.5 text-[12px]">
                     {x.evidence.slice(0, 4).map((e, i) => (
                       <li key={i} className="mono truncate text-muted">
                         #{e.seq} {e.summary}
@@ -96,8 +96,8 @@ export default function Findings() {
                   </ul>
                 )}
                 {x.remediation && (
-                  <p className="text-[13px]">
-                    <b className="text-tertiary-text">{t("Remediation:")}</b> {x.remediation}
+                  <p className="text-[12.5px] text-neutral">
+                    <b className="font-medium text-tertiary-text">{t("Remediation:")}</b> {x.remediation}
                   </p>
                 )}
                 {x.trace_id && (
